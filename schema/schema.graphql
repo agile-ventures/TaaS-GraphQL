@@ -1,0 +1,424 @@
+# Address is Tezos address, represented as tz1, tz2, tz3 or KT1 prefixed String.
+scalar Address
+# Long is a 64 bit unsigned integer.
+scalar Long
+# Date is a timestamp specified in the following format 2020-02-04T15:31:39Z in UTC timezone
+scalar Datetime
+
+schema {
+  query: Query
+  # mutation: Mutation
+}
+
+# Enums
+enum MetadataBalanceUpdatesKindEnum {
+  contract
+  freezer
+}
+
+enum MetadataBalanceUpdatesCategoryEnum {
+  deposits
+  fees
+  rewards
+}
+
+enum OperationContentsBallotEnum {
+  nay
+  pass
+  yay
+}
+
+enum OperationKindsEnum {
+  activate_account
+  ballot
+  delegation
+  double_baking_evidence
+  double_endorsement_evidence
+  endorsement
+  origination
+  proposals
+  reveal
+  seed_nonce_revelation
+  transaction
+}
+
+enum InternalOperationResultKindEnum {
+  delegation
+  origination
+  reveal
+  transaction
+}
+
+enum OperationResultStatusEnum {
+  applied
+  backtracked
+  failed
+  skipped
+}
+
+# Account is a Tezos account at a particular block.
+type Account {
+  # Address is the address owning the account.
+  address: Address!
+  # Balance is the balance of the account, in mutez.
+  balance: Long!
+  counter: Long!
+}
+
+type BlockFullHeader {
+  level: Long!
+  proto: Long!
+  predecessor: String!
+  timestamp: Datetime!
+  validation_pass: Long!
+  operations_hash: String
+  fitness: [String!]!
+  context: String!
+  priority: Long!
+  proof_of_work_nonce: String!
+  seed_nonce_hash: String
+  signature: String!
+}
+
+type OperationMetadataBalanceUpdates {
+  kind: MetadataBalanceUpdatesKindEnum!
+  category: MetadataBalanceUpdatesCategoryEnum
+  contract: String
+  delegate: String
+  cycle: Long
+  change: String
+}
+
+type OperationContentsMetadata {
+  balance_updates: [OperationMetadataBalanceUpdates]
+}
+
+type OperationContentsMetadataExtended {
+  balance_updates: [OperationMetadataBalanceUpdates!]!
+  delegate: String!
+  slots: [Long!]!
+}
+
+type OperationContentsMetadataReveal {
+  balance_updates: [OperationMetadataBalanceUpdates!]!
+  internal_operation_results: [InternalOperationResult]
+  operation_result: OperationResultReveal
+}
+
+type OperationContentsMetadataTransaction {
+  balance_updates: [OperationMetadataBalanceUpdates!]!
+  operation_result: OperationResultTransaction!
+  internal_operation_results: [InternalOperationResult]
+}
+
+type OperationContentsMetadataDelegation {
+  balance_updates: [OperationMetadataBalanceUpdates!]!
+  operation_result: OperationResultDelegation!
+  internal_operation_results: [InternalOperationResult]
+}
+
+type OperationContentsMetadataOrigination {
+  balance_updates: [OperationMetadataBalanceUpdates!]!
+  operation_result: OperationResultOrigination!
+  internal_operation_results: [InternalOperationResult]
+}
+
+type InlinedEndorsementContents {
+  # kind is always 'endorsement'
+  kind: OperationKindsEnum!
+  level: Long!
+}
+
+type InlinedEndorsement {
+  branch: String!
+  operations: InlinedEndorsementContents!
+  signature: String
+}
+
+type OperationContentsEndorsement {
+  # kind is always 'endorsement'
+  kind: OperationKindsEnum!
+  level: Long!
+  metadata: OperationContentsMetadataExtended!
+}
+
+type OperationContentsRevelation {
+  # kind is always 'seed_nonce_revelation'
+  kind: OperationKindsEnum!
+  level: Long!
+  nonce: String!
+  metadata: OperationContentsMetadata!
+}
+
+type OperationContentsDoubleEndorsement {
+  # kind is always 'double_endorsement_evidence'
+  kind: OperationKindsEnum!
+  op1: InlinedEndorsement!
+  op2: InlinedEndorsement!
+  metadata: OperationContentsMetadata!
+}
+
+type OperationContentsDoubleBaking {
+  # kind is always 'double_baking_evidence'
+  kind: OperationKindsEnum!
+  bh1: BlockFullHeader!
+  bh2: BlockFullHeader!
+  metadata: OperationContentsMetadata!
+}
+
+type OperationContentsActivateAccount {
+  # kind is always 'activate_account'
+  kind: OperationKindsEnum!
+  pkh: String!
+  secret: String!
+  metadata: OperationContentsMetadata!
+}
+
+type OperationContentsProposals {
+  # kind is always 'proposals'
+  kind: OperationKindsEnum!
+  source: String!
+  period: Long!
+  proposals: [String!]!
+  # TODO
+  # metadata: any
+}
+
+type OperationContentsBallot {
+  # kind is always 'ballot'
+  kind: OperationKindsEnum!
+  source: String!
+  period: Long!
+  proposal: String!
+  ballot: OperationContentsBallotEnum!
+  # TODO
+  # metadata: any
+}
+
+type OperationContentsReveal {
+  # kind is always 'reveal'
+  kind: OperationKindsEnum!
+  source: String!
+  fee: String!
+  counter: String!
+  gas_limit: String!
+  storage_limit: String!
+  public_key: String!
+  metadata: OperationContentsMetadataReveal!
+}
+
+type OperationContentsTransaction {
+  # kind is always 'transaction'
+  kind: OperationKindsEnum!
+  source: String!
+  fee: String!
+  counter: String!
+  gas_limit: String!
+  storage_limit: String!
+  amount: String!
+  destination: String!
+  parameters: MichelsonV1Expression
+  metadata: OperationContentsMetadataTransaction!
+}
+
+type OperationContentsDelegation {
+  # kind is always 'delegation'
+  kind: OperationKindsEnum!
+  source: String!
+  fee: String!
+  counter: String!
+  gas_limit: String!
+  storage_limit: String!
+  delegate: String
+  metadata: OperationContentsMetadataDelegation!
+}
+
+type OperationContentsOrigination {
+  # kind is always 'origination'
+  kind: OperationKindsEnum!
+  source: String
+  fee: String!
+  counter: String!
+  gas_limit: String!
+  storage_limit: String!
+  balance: String!
+  delegate: String
+  script: ScriptedContracts
+  metadata: OperationContentsMetadataOrigination!
+}
+
+type MichelsonV1ExpressionBase {
+  int: String
+  String: String
+  bytes: String
+}
+
+type MichelsonV1ExpressionExtended {
+  prim: String!
+  args: [MichelsonV1Expression]
+  annots: [String]
+}
+
+union MichelsonV1Expression =
+    MichelsonV1ExpressionBase
+  | MichelsonV1ExpressionExtended
+
+union OperationContent =
+    OperationContentsEndorsement
+  | OperationContentsRevelation
+  | OperationContentsDoubleEndorsement
+  | OperationContentsDoubleBaking
+  | OperationContentsActivateAccount
+  | OperationContentsProposals
+  | OperationContentsBallot
+  | OperationContentsReveal
+  | OperationContentsTransaction
+  | OperationContentsOrigination
+  | OperationContentsDelegation
+
+type OperationEntry {
+  protocol: String!
+  chain_id: String!
+  hash: String!
+  branch: String!
+  contents: [OperationContent]
+  signature: String!
+}
+
+type ContractBigMapDiffItem {
+  key_hash: String!
+  key: MichelsonV1Expression!
+  value: MichelsonV1Expression
+}
+
+type OperationBalanceUpdates {
+  kind: MetadataBalanceUpdatesKindEnum!
+  category: MetadataBalanceUpdatesCategoryEnum
+  delegate: String
+  cycle: Long
+  contract: String
+  change: String!
+}
+
+type TezosGenericOperationError {
+  kind: String
+  id: String
+}
+
+type ScriptedContracts {
+  code: [MichelsonV1Expression!]!
+  storage: MichelsonV1Expression!
+}
+
+# Operation Results
+union InternalOperationResult =
+    OperationResultDelegation
+  | OperationResultOrigination
+  | OperationResultReveal
+  | OperationResultTransaction
+
+# interface OperationResult {
+#   status: OperationResultStatusEnum!
+#   consumed_gas: String
+#   errors: [TezosGenericOperationError]
+# }
+
+type OperationResultTransaction {
+  status: OperationResultStatusEnum!
+  consumed_gas: String
+  errors: [TezosGenericOperationError]
+  storage_base: MichelsonV1ExpressionBase
+  storage_extended: MichelsonV1ExpressionExtended
+  big_map_diff: [ContractBigMapDiffItem]
+  balance_updates: [OperationBalanceUpdates]
+  originated_contracts: [String]
+  storage_size: String
+  paid_storage_size_diff: String
+  allocated_destination_contract: Boolean
+}
+
+type OperationResultOrigination {
+  status: OperationResultStatusEnum!
+  consumed_gas: String
+  errors: [TezosGenericOperationError]
+  balance_updates: OperationBalanceUpdates
+  originated_contracts: [String]
+  storage_size: String
+  paid_storage_size_diff: String
+}
+
+# TODO is there a way to use the OperationResult interface where there are no other fields?
+type OperationResultReveal {
+  status: OperationResultStatusEnum!
+  consumed_gas: String
+  errors: [TezosGenericOperationError]
+}
+
+# TODO is there a way to use the OperationResult interface where there are no other fields?
+type OperationResultDelegation {
+  status: OperationResultStatusEnum!
+  consumed_gas: String
+  errors: [TezosGenericOperationError]
+}
+
+type MaxOperationListLength {
+  max_size: Long!
+  max_op: Long!
+}
+
+type Level {
+  level: Long!
+  level_position: Long!
+  cycle: Long!
+  cycle_position: Long!
+  voting_period: Long!
+  voting_period_position: Long!
+  expected_commitment: Boolean
+}
+
+type TestChainStatus {
+  status: String
+}
+
+# Block is a Tezos block.
+type Block {
+  protocol: String!
+  chain_id: String!
+  hash: String!
+  header: BlockFullHeader!
+  metadata: BlockMetadata!
+  operations: [[OperationEntry]]
+  # endorsements: [Endorsements]
+  # transactions: [Transaction]
+  # originations: [Originations]
+  # delegations: [Delegation]
+  # reveals: [Reveal]
+}
+
+type BlockMetadata {
+  protocol: String!
+  next_protocol: String!
+  test_chain_status: TestChainStatus!
+  max_operations_ttl: Long!
+  max_operation_data_length: Long!
+  max_block_header_length: Long!
+  max_operation_list_length: [MaxOperationListLength]
+  baker: String!
+  level: Level!
+  voting_period_kind: String!
+  # TODO
+  # nonce_hash: any
+  consumed_gas: String
+  # TODO
+  #deactivated: any[]
+  balance_updates: OperationBalanceUpdates
+}
+
+type Query {
+  # Block fetches an Tezos block by number or by hash. If neither is
+  # supplied, the most recent known block is returned.
+  block(hash_or_level: String): Block!
+  # Blocks returns all the blocks between two numbers, inclusive. If
+  # to is not supplied, it defaults to the most recent known block.
+  blocks(from: Long!, to: Long): [Block]!
+}
