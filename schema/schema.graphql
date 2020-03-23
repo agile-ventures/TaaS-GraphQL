@@ -2,7 +2,7 @@
 scalar Address
 # Long is a 64 bit unsigned integer.
 scalar Long
-# Date is a timestamp specified in the following format 2020-02-04T15:31:39Z in UTC timezone
+# Datetime is a timestamp specified as a ISO-8601 UTC date string (2020-02-04T15:31:39Z)
 scalar Datetime
 
 schema {
@@ -310,12 +310,30 @@ type ScriptedContracts {
   storage: MichelsonV1Expression!
 }
 
-# Operation Results
-union InternalOperationResult =
-    OperationResultDelegation
-  | OperationResultOrigination
+union InternalOperationResultEnum =
   | OperationResultReveal
   | OperationResultTransaction
+  | OperationResultDelegation
+  | OperationResultOrigination
+
+type TransactionOperationParameter {
+  entrypoint: String,
+  value: MichelsonV1Expression
+}
+
+type InternalOperationResult {
+  kind: InternalOperationResultKindEnum!,
+  source: String!,
+  nonce: Long!,
+  amount: String,
+  destination: String,
+  parameters: TransactionOperationParameter,
+  public_key: String,
+  balance: String,
+  delegate: String,
+  script: ScriptedContracts,
+  result: InternalOperationResultEnum
+}
 
 # interface OperationResult {
 #   status: OperationResultStatusEnum!
@@ -347,14 +365,12 @@ type OperationResultOrigination {
   paid_storage_size_diff: String
 }
 
-# TODO is there a way to use the OperationResult interface where there are no other fields?
 type OperationResultReveal {
   status: OperationResultStatusEnum!
   consumed_gas: String
   errors: [TezosGenericOperationError]
 }
 
-# TODO is there a way to use the OperationResult interface where there are no other fields?
 type OperationResultDelegation {
   status: OperationResultStatusEnum!
   consumed_gas: String
@@ -388,11 +404,11 @@ type Block {
   header: BlockFullHeader!
   metadata: BlockMetadata!
   operations: [[OperationEntry]]
-  # endorsements: [Endorsements]
-  # transactions: [Transaction]
-  # originations: [Originations]
-  # delegations: [Delegation]
-  # reveals: [Reveal]
+  # endorsements: [Endorsement]!
+  # transactions: [Transaction]!
+  # originations: [Origination]!
+  # delegations: [Delegation]!
+  # reveals: [Reveal]!
 }
 
 type BlockMetadata {
@@ -415,10 +431,10 @@ type BlockMetadata {
 }
 
 type Query {
-  # Block fetches an Tezos block by number or by hash. If neither is
-  # supplied, the most recent known block is returned.
-  block(hash_or_level: String): Block!
-  # Blocks returns all the blocks between two numbers, inclusive. If
-  # to is not supplied, it defaults to the most recent known block.
+  # Block fetches an Tezos block by number, hash or relative pointer (head~n). 
+  # If neither is supplied, the most recent known block (head) is returned.
+  block(block: String): Block!
+  # Blocks returns all the blocks between two levels, inclusive. If
+  # to is not supplied, it defaults to the most recent known block (head).
   blocks(from: Long!, to: Long): [Block]!
 }
