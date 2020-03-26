@@ -101,26 +101,26 @@ type OperationContentsMetadataExtended {
 
 type OperationContentsMetadataReveal {
   balance_updates: [OperationMetadataBalanceUpdates!]!
-  internal_operation_results: [InternalOperationResult]
+  internal_operation_results: [InternalOperationResultReveal]
   operation_result: OperationResultReveal
 }
 
 type OperationContentsMetadataTransaction {
   balance_updates: [OperationMetadataBalanceUpdates!]!
   operation_result: OperationResultTransaction!
-  internal_operation_results: [InternalOperationResult]
+  internal_operation_results: [InternalOperationResultTransaction]
 }
 
 type OperationContentsMetadataDelegation {
   balance_updates: [OperationMetadataBalanceUpdates!]!
   operation_result: OperationResultDelegation!
-  internal_operation_results: [InternalOperationResult]
+  internal_operation_results: [InternalOperationResultDelegation]
 }
 
 type OperationContentsMetadataOrigination {
   balance_updates: [OperationMetadataBalanceUpdates!]!
   operation_result: OperationResultOrigination!
-  internal_operation_results: [InternalOperationResult]
+  internal_operation_results: [InternalOperationResultOrigination]
 }
 
 type InlinedEndorsementContents {
@@ -310,19 +310,17 @@ type ScriptedContracts {
   storage: MichelsonV1Expression!
 }
 
-union InternalOperationResultEnum =
-  | OperationResultReveal
-  | OperationResultTransaction
-  | OperationResultDelegation
-  | OperationResultOrigination
-
 type TransactionOperationParameter {
   entrypoint: String,
   value: MichelsonV1Expression
 }
 
-type InternalOperationResult {
+interface InternalOperationResult {
   kind: InternalOperationResultKindEnum!,
+  info: InternalOperationResultInfo,
+}
+
+type InternalOperationResultInfo {
   source: String!,
   nonce: Long!,
   amount: String,
@@ -332,8 +330,32 @@ type InternalOperationResult {
   balance: String,
   delegate: String,
   script: ScriptedContracts,
-  result: InternalOperationResultEnum
 }
+
+type InternalOperationResultTransaction implements InternalOperationResult {
+  kind: InternalOperationResultKindEnum!,
+  info: InternalOperationResultInfo,
+  result: OperationResultTransaction
+}
+
+type InternalOperationResultReveal implements InternalOperationResult {
+  kind: InternalOperationResultKindEnum!,
+  info: InternalOperationResultInfo,
+  result: OperationResultReveal
+}
+
+type InternalOperationResultDelegation implements InternalOperationResult {
+  kind: InternalOperationResultKindEnum!,
+  info: InternalOperationResultInfo,
+  result: OperationResultDelegation
+}
+
+type InternalOperationResultOrigination implements InternalOperationResult {
+  kind: InternalOperationResultKindEnum!,
+  info: InternalOperationResultInfo,
+  result: OperationResultOrigination
+}
+
 
 # interface OperationResult {
 #   status: OperationResultStatusEnum!
@@ -404,11 +426,11 @@ type Block {
   header: BlockFullHeader!
   metadata: BlockMetadata!
   operations: [[OperationEntry]]
-  # endorsements: [Endorsement]
-  # transactions: [Transaction]
-  # originations: [Origination]
-  # delegations: [Delegation]
-  # reveals: [Reveal]
+  # endorsements: [Endorsement]!
+  # transactions: [Transaction]!
+  # originations: [Origination]!
+  # delegations: [Delegation]!
+  # reveals: [Reveal]!
 }
 
 type BlockMetadata {
