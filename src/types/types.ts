@@ -62,51 +62,58 @@ export interface InlinedEndorsement {
 
 export type OperationContentsBallotEnum = 'nay' | 'yay' | 'pass';
 
-export interface OperationContentsEndorsement {
+export interface OperationContentsEndorsement extends OperationContents {
   kind: 'endorsement';
   level: number;
+  metadata: OperationContentsAndResultMetadataExtended;
 }
 
-export interface OperationContentsRevelation {
+export interface OperationContentsRevelation extends OperationContents {
   kind: 'seed_nonce_revelation';
   level: number;
   nonce: string;
+  metadata: OperationContentsAndResultMetadata;
 }
 
-export interface OperationContentsDoubleEndorsement {
+export interface OperationContentsDoubleEndorsement extends OperationContents {
   kind: 'double_endorsement_evidence';
   op1: InlinedEndorsement;
   op2: InlinedEndorsement;
+  metadata: OperationContentsAndResultMetadata;
 }
 
-export interface OperationContentsDoubleBaking {
+export interface OperationContentsDoubleBaking extends OperationContents {
   kind: 'double_baking_evidence';
   bh1: BlockFullHeader;
   bh2: BlockFullHeader;
+  metadata: OperationContentsAndResultMetadata;
 }
 
-export interface OperationContentsActivateAccount {
+export interface OperationContentsActivateAccount extends OperationContents {
   kind: 'activate_account';
   pkh: string;
   secret: string;
+  metadata: OperationContentsAndResultMetadata;
 }
 
-export interface OperationContentsProposals {
+export interface OperationContentsProposals extends OperationContents {
   kind: 'proposals';
   source: string;
   period: number;
   proposals: string[];
+  metadata: any;
 }
 
-export interface OperationContentsBallot {
+export interface OperationContentsBallot extends OperationContents {
   kind: 'ballot';
   source: string;
   period: number;
   proposal: string;
   ballot: OperationContentsBallotEnum;
+  metadata: any;
 }
 
-export interface OperationContentsReveal {
+export interface OperationContentsReveal extends OperationContents {
   kind: 'reveal';
   source: string;
   fee: string;
@@ -114,9 +121,10 @@ export interface OperationContentsReveal {
   gas_limit: string;
   storage_limit: string;
   public_key: string;
+  metadata: OperationContentsAndResultMetadataReveal;
 }
 
-export interface OperationContentsTransaction {
+export interface OperationContentsTransaction extends OperationContents {
   kind: 'transaction';
   source: string;
   fee: string;
@@ -126,9 +134,10 @@ export interface OperationContentsTransaction {
   amount: string;
   destination: string;
   parameters?: MichelsonV1Expression;
+  metadata: OperationContentsAndResultMetadataTransaction;
 }
 
-export interface OperationContentsOrigination {
+export interface OperationContentsOrigination extends OperationContents {
   kind: 'origination';
   source: string;
   fee: string;
@@ -138,9 +147,10 @@ export interface OperationContentsOrigination {
   balance: string;
   delegate?: string;
   script?: ScriptedContracts;
+  metadata: OperationContentsAndResultMetadataOrigination;
 }
 
-export interface OperationContentsDelegation {
+export interface OperationContentsDelegation extends OperationContents {
   kind: 'delegation';
   source: string;
   fee: string;
@@ -148,20 +158,13 @@ export interface OperationContentsDelegation {
   gas_limit: string;
   storage_limit: string;
   delegate?: string;
+  metadata: OperationContentsAndResultMetadataDelegation;
 }
 
-export type OperationContents =
-  | OperationContentsEndorsement
-  | OperationContentsRevelation
-  | OperationContentsDoubleEndorsement
-  | OperationContentsDoubleBaking
-  | OperationContentsActivateAccount
-  | OperationContentsProposals
-  | OperationContentsBallot
-  | OperationContentsReveal
-  | OperationContentsTransaction
-  | OperationContentsOrigination
-  | OperationContentsDelegation;
+export interface OperationContents {
+  kind: string;
+  operation: OperationEntry;
+}
 
 export interface OperationContentsAndResultMetadataExtended {
   balance_updates: OperationMetadataBalanceUpdates[];
@@ -191,117 +194,16 @@ export interface OperationContentsAndResultMetadata {
   balance_updates: OperationMetadataBalanceUpdates[];
 }
 
-export interface OperationContentsAndResultEndorsement {
-  kind: 'endorsement';
-  level: number;
-  metadata: OperationContentsAndResultMetadataExtended;
-}
-
-export interface OperationContentsAndResultRevelation {
-  kind: 'seed_nonce_revelation';
-  level: number;
-  nonce: string;
-  metadata: OperationContentsAndResultMetadata;
-}
-
-export interface OperationContentsAndResultDoubleEndorsement {
-  kind: 'double_endorsement_evidence';
-  op1: InlinedEndorsement;
-  op2: InlinedEndorsement;
-  metadata: OperationContentsAndResultMetadata;
-}
-
-export interface OperationContentsAndResultDoubleBaking {
-  kind: 'double_baking_evidence';
-  bh1: BlockFullHeader;
-  bh2: BlockFullHeader;
-  metadata: OperationContentsAndResultMetadata;
-}
-
-export interface OperationContentsAndResultActivateAccount {
-  kind: 'activate_account';
-  pkh: string;
-  secret: string;
-  metadata: OperationContentsAndResultMetadata;
-}
-
-export interface OperationContentsAndResultProposals {
-  kind: 'proposals';
-  source: string;
-  period: number;
-  proposals: string[];
-  metadata: any;
-}
-
-export interface OperationContentsAndResultBallot {
-  kind: 'ballot';
-  source: string;
-  period: number;
-  proposal: string;
-  ballot: OperationContentsBallotEnum;
-  metadata: any;
-}
-
-export interface OperationContentsAndResultReveal {
-  kind: 'reveal';
-  source: string;
-  fee: string;
-  counter: string;
-  gas_limit: string;
-  storage_limit: string;
-  public_key: string;
-  metadata: OperationContentsAndResultMetadataReveal;
-}
-
-export interface OperationContentsAndResultTransaction {
-  kind: 'transaction';
-  source: string;
-  fee: string;
-  counter: string;
-  gas_limit: string;
-  storage_limit: string;
-  amount: string;
-  destination: string;
-  parameters?: MichelsonV1Expression;
-  metadata: OperationContentsAndResultMetadataTransaction;
-}
-
-export interface OperationContentsAndResultDelegation {
-  kind: 'delegation';
-  source: string;
-  fee: string;
-  counter: string;
-  gas_limit: string;
-  storage_limit: string;
-  delegate?: string;
-  metadata: OperationContentsAndResultMetadataDelegation;
-}
-
-export type OperationContentsAndResult =
-  | OperationContentsAndResultEndorsement
-  | OperationContentsAndResultRevelation
-  | OperationContentsAndResultDoubleEndorsement
-  | OperationContentsAndResultDoubleBaking
-  | OperationContentsAndResultActivateAccount
-  | OperationContentsAndResultProposals
-  | OperationContentsAndResultBallot
-  | OperationContentsAndResultReveal
-  | OperationContentsAndResultTransaction
-  | OperationContentsAndResultOrigination
-  | OperationContentsAndResultDelegation;
-
-// BlockResponse interface
-// operations:
 export interface OperationEntry {
   protocol: string;
   chain_id: string;
   hash: string;
   branch: string;
-  contents: (OperationContents | OperationContentsAndResult)[];
+  contents: OperationContents[];
   signature?: string;
 }
 
-export interface BlockResponse {
+export interface Block {
   protocol: string;
   chain_id: string;
   hash: string;
@@ -433,7 +335,7 @@ export type BigMapResponse = MichelsonV1Expression | MichelsonV1Expression[];
 
 export type PreapplyParams = OperationObject[];
 export type PreapplyResponse = {
-  contents: OperationContentsAndResult[];
+  contents: OperationContents[];
 };
 
 export type ForgeOperationsParams = Pick<OperationObject, 'branch' | 'contents'>;
@@ -685,16 +587,3 @@ export type EntrypointsResponse = {
   entrypoints: { [key: string]: Object };
   unreachable?: { path: ('Left' | 'Right')[] };
 };
-
-export interface OperationContentsAndResultOrigination {
-  kind: 'origination';
-  source: string;
-  fee: string;
-  counter: string;
-  gas_limit: string;
-  storage_limit: string;
-  balance: string;
-  delegate?: string;
-  script?: ScriptedContracts;
-  metadata: OperationContentsAndResultMetadataOrigination;
-}

@@ -123,10 +123,16 @@ type OperationContentsMetadataOrigination {
   internal_operation_results: [InternalOperationResultOrigination]
 }
 
-type InlinedEndorsementContents {
+interface OperationContent {
+  kind: OperationKindsEnum!
+  operation: OperationEntry
+}
+
+type InlinedEndorsementContents implements OperationContent {
   # kind is always 'endorsement'
   kind: OperationKindsEnum!
   level: Long!
+  operation: OperationEntry
 }
 
 type InlinedEndorsement {
@@ -135,38 +141,43 @@ type InlinedEndorsement {
   signature: String
 }
 
-type OperationContentsEndorsement {
+type OperationContentsEndorsement implements OperationContent {
   # kind is always 'endorsement'
   kind: OperationKindsEnum!
   level: Long!
   metadata: OperationContentsMetadataExtended!
+  operation: OperationEntry
 }
 
-type OperationContentsDoubleEndorsement {
+type OperationContentsDoubleEndorsement implements OperationContent {
   # kind is always 'double_endorsement_evidence'
   kind: OperationKindsEnum!
   op1: InlinedEndorsement!
   op2: InlinedEndorsement!
   metadata: OperationContentsMetadata!
+  operation: OperationEntry
 }
 
-type OperationContentsDoubleBaking {
+type OperationContentsDoubleBaking implements OperationContent {
   # kind is always 'double_baking_evidence'
   kind: OperationKindsEnum!
   bh1: BlockFullHeader!
   bh2: BlockFullHeader!
   metadata: OperationContentsMetadata!
+  operation: OperationEntry
 }
 
-type OperationContentsActivateAccount {
+type OperationContentsActivateAccount implements OperationContent {
   # kind is always 'activate_account'
   kind: OperationKindsEnum!
   pkh: String!
   secret: String!
   metadata: OperationContentsMetadata!
+  parent: OperationEntry!
+  operation: OperationEntry
 }
 
-type OperationContentsProposal {
+type OperationContentsProposal implements OperationContent {
   # kind is always 'proposals'
   kind: OperationKindsEnum!
   source: String!
@@ -174,9 +185,10 @@ type OperationContentsProposal {
   proposals: [String!]!
   # TODO
   # metadata: any
+  operation: OperationEntry
 }
 
-type OperationContentsBallot {
+type OperationContentsBallot implements OperationContent {
   # kind is always 'ballot'
   kind: OperationKindsEnum!
   source: String!
@@ -185,9 +197,10 @@ type OperationContentsBallot {
   ballot: OperationContentsBallotEnum!
   # TODO
   # metadata: any
+  operation: OperationEntry
 }
 
-type OperationContentsReveal {
+type OperationContentsReveal implements OperationContent {
   # kind is always 'reveal'
   kind: OperationKindsEnum!
   source: String!
@@ -197,9 +210,10 @@ type OperationContentsReveal {
   storage_limit: String!
   public_key: String!
   metadata: OperationContentsMetadataReveal!
+  operation: OperationEntry
 }
 
-type OperationContentsTransaction {
+type OperationContentsTransaction implements OperationContent {
   # kind is always 'transaction'
   kind: OperationKindsEnum!
   source: String!
@@ -211,9 +225,10 @@ type OperationContentsTransaction {
   destination: String!
   parameters: MichelsonV1Expression
   metadata: OperationContentsMetadataTransaction!
+  operation: OperationEntry
 }
 
-type OperationContentsDelegation {
+type OperationContentsDelegation implements OperationContent {
   # kind is always 'delegation'
   kind: OperationKindsEnum!
   source: String!
@@ -223,17 +238,19 @@ type OperationContentsDelegation {
   storage_limit: String!
   delegate: String
   metadata: OperationContentsMetadataDelegation!
+  operation: OperationEntry
 }
 
-type OperationContentsSeedNonceRevelation {
+type OperationContentsSeedNonceRevelation implements OperationContent {
   # kind is always 'seed_nonce_revelation'
   kind: OperationKindsEnum!
   level: Long!
   nonce: String!
   metadata: OperationContentsMetadata!
+  operation: OperationEntry
 }
 
-type OperationContentsOrigination {
+type OperationContentsOrigination implements OperationContent {
   # kind is always 'origination'
   kind: OperationKindsEnum!
   source: String
@@ -245,6 +262,7 @@ type OperationContentsOrigination {
   delegate: String
   script: ScriptedContracts
   metadata: OperationContentsMetadataOrigination!
+  operation: OperationEntry
 }
 
 type MichelsonV1ExpressionBase {
@@ -263,135 +281,13 @@ union MichelsonV1Expression =
     MichelsonV1ExpressionBase
   | MichelsonV1ExpressionExtended
 
-union OperationContent =
-    OperationContentsEndorsement
-  | OperationContentsSeedNonceRevelation
-  | OperationContentsDoubleEndorsement
-  | OperationContentsDoubleBaking
-  | OperationContentsActivateAccount
-  | OperationContentsProposal
-  | OperationContentsBallot
-  | OperationContentsReveal
-  | OperationContentsTransaction
-  | OperationContentsOrigination
-  | OperationContentsDelegation
-
-interface OperationEntryInterface {
+type OperationEntry {
   protocol: String!
   chain_id: String!
   hash: String!
   branch: String!
   contents: [OperationContent]
   signature: String!
-}
-
-type OperationEntry implements OperationEntryInterface {
-  protocol: String!
-  chain_id: String!
-  hash: String!
-  branch: String!
-  contents: [OperationContent]
-  signature: String!
-}
-
-type ActivateOperation implements OperationEntryInterface {
-    protocol: String!
-    chain_id: String!
-    hash: String!
-    branch: String!
-    contents: [OperationContentsActivateAccount]!
-    signature: String!
-}
-
-type BallotOperation implements OperationEntryInterface {
-    protocol: String!
-    chain_id: String!
-    hash: String!
-    branch: String!
-    contents: [OperationContentsBallot]!
-    signature: String!
-}
-
-type DelegationOperation implements OperationEntryInterface {
-    protocol: String!
-    chain_id: String!
-    hash: String!
-    branch: String!
-    contents: [OperationContentsDelegation]!
-    signature: String!
-}
-
-type DoubleBakingEvidenceOperation implements OperationEntryInterface {
-    protocol: String!
-    chain_id: String!
-    hash: String!
-    branch: String!
-    contents: [OperationContentsDoubleBaking]!
-    signature: String!
-}
-
-type DoubleEndorsementEvidenceOperation implements OperationEntryInterface {
-    protocol: String!
-    chain_id: String!
-    hash: String!
-    branch: String!
-    contents: [OperationContentsDoubleEndorsement]!
-    signature: String!
-}
-
-type EndorsementOperation implements OperationEntryInterface {
-    protocol: String!
-    chain_id: String!
-    hash: String!
-    branch: String!
-    contents: [OperationContentsEndorsement]!
-    signature: String!
-}
-
-type OriginationOperation implements OperationEntryInterface {
-    protocol: String!
-    chain_id: String!
-    hash: String!
-    branch: String!
-    contents: [OperationContentsOrigination]!
-    signature: String!
-}
-
-type ProposalOperation implements OperationEntryInterface {
-    protocol: String!
-    chain_id: String!
-    hash: String!
-    branch: String!
-    contents: [OperationContentsProposal]!
-    signature: String!
-}
-
-type RevealOperation implements OperationEntryInterface {
-    protocol: String!
-    chain_id: String!
-    hash: String!
-    branch: String!
-    contents: [OperationContentsReveal]!
-    signature: String!
-}
-
-type SeedNonceRevelationOperation implements OperationEntryInterface {
-    protocol: String!
-    chain_id: String!
-    hash: String!
-    branch: String!
-    contents: [OperationContentsSeedNonceRevelation]!
-    signature: String!
-}
-
-
-type TransactionOperation implements OperationEntryInterface {
-    protocol: String!
-    chain_id: String!
-    hash: String!
-    branch: String!
-    contents: [OperationContentsTransaction]
-    signature: String!
 }
 
 type ContractBigMapDiffItem {
@@ -534,18 +430,18 @@ type Block {
   hash: String!
   header: BlockFullHeader!
   metadata: BlockMetadata!
-  operations(kind: OperationKindsEnum): [[OperationEntry]]
-  activations: [ActivateOperation]!
-  ballots: [BallotOperation]!
-  delegations: [DelegationOperation]!
-  double_baking_evidence: [DoubleBakingEvidenceOperation]!
-  double_endorsement_evidence: [DoubleEndorsementEvidenceOperation]!
-  endorsements: [EndorsementOperation]!
-  originations: [OriginationOperation]!
-  proposals: [ProposalOperation]!
-  reveals: [RevealOperation]!
-  seed_nonce_revelations: [SeedNonceRevelationOperation]!
-  transactions: [TransactionOperation]!
+  operations(hash: String): [[OperationEntry]]
+  activations(hash: String): [OperationContentsActivateAccount]!
+  ballots(hash: String): [OperationContentsBallot]!
+  delegations(hash: String): [OperationContentsDelegation]!
+  double_baking_evidence(hash: String): [OperationContentsDoubleBaking]!
+  double_endorsement_evidence(hash: String): [OperationContentsDoubleEndorsement]!
+  endorsements(hash: String): [OperationContentsEndorsement]!
+  originations(hash: String): [OperationContentsOrigination]!
+  proposals(hash: String): [OperationContentsProposal]!
+  reveals(hash: String): [OperationContentsReveal]!
+  seed_nonce_revelations(hash: String): [OperationContentsSeedNonceRevelation]!
+  transactions(hash: String, source: Address, destination: Address): [OperationContentsTransaction]!
 }
 
 type BlockMetadata {
