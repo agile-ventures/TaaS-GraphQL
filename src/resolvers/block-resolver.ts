@@ -1,7 +1,5 @@
-import { BlockResponse, OpKind, OperationEntry } from "@taquito/rpc";
-import { cloneDeep, flatten } from "lodash";
-
-var async = require("async");
+import { BlockResponse, OperationEntry, OpKind } from '@taquito/rpc';
+import { cloneDeep } from 'lodash';
 
 var filterOperations = (operations: OperationEntry[], opKind: OpKind) => {
     let filteredOperations = cloneDeep(operations.filter(r => r.contents.some(op => op.kind == opKind)));
