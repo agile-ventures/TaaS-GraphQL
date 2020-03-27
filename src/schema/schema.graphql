@@ -426,11 +426,18 @@ type Block {
   header: BlockFullHeader!
   metadata: BlockMetadata!
   operations: [[OperationEntry]]
-  # endorsements: [Endorsement]!
-  # transactions: [Transaction]!
-  # originations: [Origination]!
-  # delegations: [Delegation]!
-  # reveals: [Reveal]!
+  # should we make separate types for each operation?
+  activations: [OperationEntry]!
+  ballots: [OperationEntry]!
+  delegations: [OperationEntry]!
+  double_baking_evidence: [OperationEntry]!
+  double_endorsement_evidence: [OperationEntry]!
+  endorsements: [OperationEntry]!
+  originations: [OperationEntry]!
+  proposals: [OperationEntry]!
+  reveals: [OperationEntry]!
+  seed_nonce_revelations: [OperationEntry]!
+  transactions: [OperationEntry]!
 }
 
 type BlockMetadata {
