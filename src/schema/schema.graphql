@@ -276,7 +276,7 @@ union OperationContent =
   | OperationContentsOrigination
   | OperationContentsDelegation
 
-interface OperationEntry {
+interface OperationEntryInterface {
   protocol: String!
   chain_id: String!
   hash: String!
@@ -285,7 +285,16 @@ interface OperationEntry {
   signature: String!
 }
 
-type ActivateOperation implements OperationEntry {
+type OperationEntry implements OperationEntryInterface {
+  protocol: String!
+  chain_id: String!
+  hash: String!
+  branch: String!
+  contents: [OperationContent]
+  signature: String!
+}
+
+type ActivateOperation implements OperationEntryInterface {
     protocol: String!
     chain_id: String!
     hash: String!
@@ -294,7 +303,7 @@ type ActivateOperation implements OperationEntry {
     signature: String!
 }
 
-type BallotOperation implements OperationEntry {
+type BallotOperation implements OperationEntryInterface {
     protocol: String!
     chain_id: String!
     hash: String!
@@ -303,7 +312,7 @@ type BallotOperation implements OperationEntry {
     signature: String!
 }
 
-type DelegationOperation implements OperationEntry {
+type DelegationOperation implements OperationEntryInterface {
     protocol: String!
     chain_id: String!
     hash: String!
@@ -312,7 +321,7 @@ type DelegationOperation implements OperationEntry {
     signature: String!
 }
 
-type DoubleBakingEvidenceOperation implements OperationEntry {
+type DoubleBakingEvidenceOperation implements OperationEntryInterface {
     protocol: String!
     chain_id: String!
     hash: String!
@@ -321,7 +330,7 @@ type DoubleBakingEvidenceOperation implements OperationEntry {
     signature: String!
 }
 
-type DoubleEndorsementEvidenceOperation implements OperationEntry {
+type DoubleEndorsementEvidenceOperation implements OperationEntryInterface {
     protocol: String!
     chain_id: String!
     hash: String!
@@ -330,7 +339,7 @@ type DoubleEndorsementEvidenceOperation implements OperationEntry {
     signature: String!
 }
 
-type EndorsementOperation implements OperationEntry {
+type EndorsementOperation implements OperationEntryInterface {
     protocol: String!
     chain_id: String!
     hash: String!
@@ -339,7 +348,7 @@ type EndorsementOperation implements OperationEntry {
     signature: String!
 }
 
-type OriginationOperation implements OperationEntry {
+type OriginationOperation implements OperationEntryInterface {
     protocol: String!
     chain_id: String!
     hash: String!
@@ -348,7 +357,7 @@ type OriginationOperation implements OperationEntry {
     signature: String!
 }
 
-type ProposalOperation implements OperationEntry {
+type ProposalOperation implements OperationEntryInterface {
     protocol: String!
     chain_id: String!
     hash: String!
@@ -357,7 +366,7 @@ type ProposalOperation implements OperationEntry {
     signature: String!
 }
 
-type RevealOperation implements OperationEntry {
+type RevealOperation implements OperationEntryInterface {
     protocol: String!
     chain_id: String!
     hash: String!
@@ -366,7 +375,7 @@ type RevealOperation implements OperationEntry {
     signature: String!
 }
 
-type SeedNonceRevelationOperation implements OperationEntry {
+type SeedNonceRevelationOperation implements OperationEntryInterface {
     protocol: String!
     chain_id: String!
     hash: String!
@@ -376,7 +385,7 @@ type SeedNonceRevelationOperation implements OperationEntry {
 }
 
 
-type TransactionOperation implements OperationEntry {
+type TransactionOperation implements OperationEntryInterface {
     protocol: String!
     chain_id: String!
     hash: String!

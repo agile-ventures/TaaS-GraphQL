@@ -1,5 +1,7 @@
 import { BlockResponse, OpKind, OperationEntry } from "@taquito/rpc";
-import { cloneDeep } from "lodash";
+import { cloneDeep, flatten } from "lodash";
+
+var async = require("async");
 
 var filterOperations = (operations: OperationEntry[], opKind: OpKind) => {
     let filteredOperations = cloneDeep(operations.filter(r => r.contents.some(op => op.kind == opKind)));
@@ -12,38 +14,45 @@ var filterOperations = (operations: OperationEntry[], opKind: OpKind) => {
 
 export const blockResolver = {
     Block: {
-        activations(obj: BlockResponse, args: any, context: any, info: any) {
-            return filterOperations(obj.operations[2], OpKind.ACTIVATION)
+        activations(root: BlockResponse) {
+            return filterOperations(root.operations[2], OpKind.ACTIVATION)
         },
-        ballots(obj: BlockResponse, args: any, context: any, info: any) {
-            return filterOperations(obj.operations[1], OpKind.BALLOT)
+        ballots(root: BlockResponse) {
+            return filterOperations(root.operations[1], OpKind.BALLOT)
         },
-        delegations(obj: BlockResponse, args: any, context: any, info: any) {
-            return filterOperations(obj.operations[3], OpKind.DELEGATION)
+        delegations(root: BlockResponse) {
+            return filterOperations(root.operations[3], OpKind.DELEGATION)
         },
-        double_baking_evidence(obj: BlockResponse, args: any, context: any, info: any) {
-            return filterOperations(obj.operations[2], OpKind.DOUBLE_BAKING_EVIDENCE)
+        double_baking_evidence(root: BlockResponse) {
+            return filterOperations(root.operations[2], OpKind.DOUBLE_BAKING_EVIDENCE)
         },
-        double_endorsement_evidence(obj: BlockResponse, args: any, context: any, info: any) {
-            return filterOperations(obj.operations[2], OpKind.DOUBLE_ENDORSEMENT_EVIDENCE)
+        double_endorsement_evidence(root: BlockResponse) {
+            return filterOperations(root.operations[2], OpKind.DOUBLE_ENDORSEMENT_EVIDENCE)
         },
-        endorsements(obj: BlockResponse, args: any, context: any, info: any) {
-            return filterOperations(obj.operations[0], OpKind.ENDORSEMENT)
+        endorsements(root: BlockResponse) {
+            return filterOperations(root.operations[0], OpKind.ENDORSEMENT)
         },
-        originations(obj: BlockResponse, args: any, context: any, info: any) {
-            return filterOperations(obj.operations[3], OpKind.ORIGINATION)
+        originations(root: BlockResponse) {
+            return filterOperations(root.operations[3], OpKind.ORIGINATION)
         },
-        proposals(obj: BlockResponse, args: any, context: any, info: any) {
-            return filterOperations(obj.operations[1], OpKind.PROPOSALS)
+        proposals(root: BlockResponse) {
+            return filterOperations(root.operations[1], OpKind.PROPOSALS)
         },
-        reveals(obj: BlockResponse, args: any, context: any, info: any) {
-            return filterOperations(obj.operations[3], OpKind.REVEAL);
+        reveals(root: BlockResponse) {
+            return filterOperations(root.operations[3], OpKind.REVEAL);
         },
-        seed_nonce_revelations(obj: BlockResponse, args: any, context: any, info: any) {
-            return filterOperations(obj.operations[1], OpKind.SEED_NONCE_REVELATION)
+        seed_nonce_revelations(root: BlockResponse) {
+            return filterOperations(root.operations[1], OpKind.SEED_NONCE_REVELATION)
         },
-        transactions(obj: BlockResponse, args: any, context: any, info: any) {
-            return filterOperations(obj.operations[3], OpKind.TRANSACTION)
+        transactions(root: BlockResponse) {
+            return filterOperations(root.operations[3], OpKind.TRANSACTION)
+        },
+        async operations(root: BlockResponse, args: { kind: OpKind }) {
+            if (args && args.kind) {
+                let filtered = root.operations.map(ops => filterOperations(ops, args.kind));
+                return filtered;
+            }
+            return root.operations;
         }
     }
 } 
