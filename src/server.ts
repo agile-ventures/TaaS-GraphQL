@@ -1,5 +1,5 @@
 import express from 'express';
-import { ApolloServer } from 'apollo-server-express';
+import { ApolloServer, ApolloServerExpressConfig } from 'apollo-server-express';
 import depthLimit from 'graphql-depth-limit';
 import { createServer } from 'http';
 import compression from 'compression';
@@ -12,14 +12,24 @@ dotenv.config();
 // TODO Check here that we have all mandatory configs in place from ENV
 
 const app = express();
-const server = new ApolloServer({
+const config: ApolloServerExpressConfig = {
   schema,
   validationRules: [depthLimit(7)],
-});
+}
+
+if (process.env.GRAPHQL_ENABLE_PLAYGROUND === 'true') { 
+  config.playground = true;
+}
+
+if (process.env.GHRAPHQL_ENABLE_INTROSPECTION === 'true') { 
+  config.introspection = true;
+}
+
+const server = new ApolloServer(config);
 app.use('*', cors());
 app.use(compression());
 server.applyMiddleware({ app, path: '/graphql' });
 const httpServer = createServer(app);
 httpServer.listen(
-  { port: 3000 },
-  (): void => console.log(`\n🚀      GraphQL is now running on http://localhost:3000/graphql`));
+  { host: process.env.HOST, port: process.env.PORT },
+  (): void => console.log(`\n🚀      GraphQL is now running on http://${process.env.HOST}:${process.env.PORT}/graphql`));
