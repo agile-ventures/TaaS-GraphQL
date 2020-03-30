@@ -3,7 +3,7 @@ scalar Address
 # Long is a 64 bit unsigned integer.
 scalar Long
 # Datetime is a timestamp specified as a ISO-8601 UTC date string (2020-02-04T15:31:39Z)
-scalar Datetime
+scalar DateTime
 
 schema {
   query: Query
@@ -11,49 +11,49 @@ schema {
 }
 
 # Enums
-enum MetadataBalanceUpdatesKindEnum {
-  contract
-  freezer
+enum BalanceUpdateKind {
+  CONTRACT
+  FREEZER
 }
 
-enum MetadataBalanceUpdatesCategoryEnum {
-  deposits
-  fees
-  rewards
+enum BalanceUpdateCategory {
+  DEPOSITS
+  FEES
+  REWARDS
 }
 
-enum OperationContentsBallotEnum {
-  nay
-  pass
-  yay
+enum Ballot {
+  NAY
+  PASS
+  YAY
 }
 
-enum OperationKindsEnum {
-  activate_account
-  ballot
-  delegation
-  double_baking_evidence
-  double_endorsement_evidence
-  endorsement
-  origination
-  proposals
-  reveal
-  seed_nonce_revelation
-  transaction
+enum OperationKind {
+  ACTIVATE_ACCOUNT
+  BALLOT
+  DELEGATION
+  DOUBLE_BAKING_EVIDENCE
+  DOUBLE_ENDORSEMENT_EVIDENCE
+  ENDORSEMENT
+  ORIGINATION
+  PROPOSALS
+  REVEAL
+  SEED_NONCE_REVELATION
+  TRANSACTION
 }
 
-enum InternalOperationResultKindEnum {
-  delegation
-  origination
-  reveal
-  transaction
+enum InternalOperationKind {
+  DELEGATION
+  ORIGINATION
+  REVEAL
+  TRANSACTION
 }
 
-enum OperationResultStatusEnum {
-  applied
-  backtracked
-  failed
-  skipped
+enum OperationResultStatus {
+  APPLIED
+  BACKTRACKED
+  FAILED
+  SKIPPED
 }
 
 # Account is a Tezos account at a particular block.
@@ -69,7 +69,7 @@ type BlockFullHeader {
   level: Long!
   proto: Long!
   predecessor: String!
-  timestamp: Datetime!
+  timestamp: DateTime!
   validation_pass: Long!
   operations_hash: String
   fitness: [String!]!
@@ -81,8 +81,8 @@ type BlockFullHeader {
 }
 
 type OperationMetadataBalanceUpdates {
-  kind: MetadataBalanceUpdatesKindEnum!
-  category: MetadataBalanceUpdatesCategoryEnum
+  kind: BalanceUpdateKind!
+  category: BalanceUpdateCategory
   contract: String
   delegate: String
   cycle: Long
@@ -124,13 +124,13 @@ type OperationContentsMetadataOrigination {
 }
 
 interface OperationContent {
-  kind: OperationKindsEnum!
+  kind: OperationKind!
   operation: OperationEntry
 }
 
 type InlinedEndorsementContents implements OperationContent {
   # kind is always 'endorsement'
-  kind: OperationKindsEnum!
+  kind: OperationKind!
   level: Long!
   operation: OperationEntry
 }
@@ -143,7 +143,7 @@ type InlinedEndorsement {
 
 type OperationContentsEndorsement implements OperationContent {
   # kind is always 'endorsement'
-  kind: OperationKindsEnum!
+  kind: OperationKind!
   level: Long!
   metadata: OperationContentsMetadataExtended!
   operation: OperationEntry
@@ -151,7 +151,7 @@ type OperationContentsEndorsement implements OperationContent {
 
 type OperationContentsDoubleEndorsement implements OperationContent {
   # kind is always 'double_endorsement_evidence'
-  kind: OperationKindsEnum!
+  kind: OperationKind!
   op1: InlinedEndorsement!
   op2: InlinedEndorsement!
   metadata: OperationContentsMetadata!
@@ -160,7 +160,7 @@ type OperationContentsDoubleEndorsement implements OperationContent {
 
 type OperationContentsDoubleBaking implements OperationContent {
   # kind is always 'double_baking_evidence'
-  kind: OperationKindsEnum!
+  kind: OperationKind!
   bh1: BlockFullHeader!
   bh2: BlockFullHeader!
   metadata: OperationContentsMetadata!
@@ -169,7 +169,7 @@ type OperationContentsDoubleBaking implements OperationContent {
 
 type OperationContentsActivateAccount implements OperationContent {
   # kind is always 'activate_account'
-  kind: OperationKindsEnum!
+  kind: OperationKind!
   pkh: String!
   secret: String!
   metadata: OperationContentsMetadata!
@@ -179,7 +179,7 @@ type OperationContentsActivateAccount implements OperationContent {
 
 type OperationContentsProposal implements OperationContent {
   # kind is always 'proposals'
-  kind: OperationKindsEnum!
+  kind: OperationKind!
   source: String!
   period: Long!
   proposals: [String!]!
@@ -190,11 +190,11 @@ type OperationContentsProposal implements OperationContent {
 
 type OperationContentsBallot implements OperationContent {
   # kind is always 'ballot'
-  kind: OperationKindsEnum!
+  kind: OperationKind!
   source: String!
   period: Long!
   proposal: String!
-  ballot: OperationContentsBallotEnum!
+  ballot: Ballot!
   # TODO
   # metadata: any
   operation: OperationEntry
@@ -202,7 +202,7 @@ type OperationContentsBallot implements OperationContent {
 
 type OperationContentsReveal implements OperationContent {
   # kind is always 'reveal'
-  kind: OperationKindsEnum!
+  kind: OperationKind!
   source: String!
   fee: String!
   counter: String!
@@ -215,7 +215,7 @@ type OperationContentsReveal implements OperationContent {
 
 type OperationContentsTransaction implements OperationContent {
   # kind is always 'transaction'
-  kind: OperationKindsEnum!
+  kind: OperationKind!
   source: String!
   fee: String!
   counter: String!
@@ -230,7 +230,7 @@ type OperationContentsTransaction implements OperationContent {
 
 type OperationContentsDelegation implements OperationContent {
   # kind is always 'delegation'
-  kind: OperationKindsEnum!
+  kind: OperationKind!
   source: String!
   fee: String!
   counter: String!
@@ -243,7 +243,7 @@ type OperationContentsDelegation implements OperationContent {
 
 type OperationContentsSeedNonceRevelation implements OperationContent {
   # kind is always 'seed_nonce_revelation'
-  kind: OperationKindsEnum!
+  kind: OperationKind!
   level: Long!
   nonce: String!
   metadata: OperationContentsMetadata!
@@ -252,7 +252,7 @@ type OperationContentsSeedNonceRevelation implements OperationContent {
 
 type OperationContentsOrigination implements OperationContent {
   # kind is always 'origination'
-  kind: OperationKindsEnum!
+  kind: OperationKind!
   source: String
   fee: String!
   counter: String!
@@ -297,8 +297,8 @@ type ContractBigMapDiffItem {
 }
 
 type OperationBalanceUpdates {
-  kind: MetadataBalanceUpdatesKindEnum!
-  category: MetadataBalanceUpdatesCategoryEnum
+  kind: BalanceUpdateKind!
+  category: BalanceUpdateCategory
   delegate: String
   cycle: Long
   contract: String
@@ -321,7 +321,7 @@ type TransactionOperationParameter {
 }
 
 interface InternalOperationResult {
-  kind: InternalOperationResultKindEnum!,
+  kind: InternalOperationKind!,
   info: InternalOperationResultInfo,
 }
 
@@ -338,38 +338,37 @@ type InternalOperationResultInfo {
 }
 
 type InternalOperationResultTransaction implements InternalOperationResult {
-  kind: InternalOperationResultKindEnum!,
+  kind: InternalOperationKind!,
   info: InternalOperationResultInfo,
   result: OperationResultTransaction
 }
 
 type InternalOperationResultReveal implements InternalOperationResult {
-  kind: InternalOperationResultKindEnum!,
+  kind: InternalOperationKind!,
   info: InternalOperationResultInfo,
   result: OperationResultReveal
 }
 
 type InternalOperationResultDelegation implements InternalOperationResult {
-  kind: InternalOperationResultKindEnum!,
+  kind: InternalOperationKind!,
   info: InternalOperationResultInfo,
   result: OperationResultDelegation
 }
 
 type InternalOperationResultOrigination implements InternalOperationResult {
-  kind: InternalOperationResultKindEnum!,
+  kind: InternalOperationKind!,
   info: InternalOperationResultInfo,
   result: OperationResultOrigination
 }
 
+interface OperationResult {
+  status: OperationResultStatus!
+  consumed_gas: String
+  errors: [TezosGenericOperationError]
+}
 
-# interface OperationResult {
-#   status: OperationResultStatusEnum!
-#   consumed_gas: String
-#   errors: [TezosGenericOperationError]
-# }
-
-type OperationResultTransaction {
-  status: OperationResultStatusEnum!
+type OperationResultTransaction implements OperationResult {
+  status: OperationResultStatus!
   consumed_gas: String
   errors: [TezosGenericOperationError]
   storage_base: MichelsonV1ExpressionBase
@@ -382,8 +381,8 @@ type OperationResultTransaction {
   allocated_destination_contract: Boolean
 }
 
-type OperationResultOrigination {
-  status: OperationResultStatusEnum!
+type OperationResultOrigination implements OperationResult {
+  status: OperationResultStatus!
   consumed_gas: String
   errors: [TezosGenericOperationError]
   balance_updates: OperationBalanceUpdates
@@ -392,14 +391,14 @@ type OperationResultOrigination {
   paid_storage_size_diff: String
 }
 
-type OperationResultReveal {
-  status: OperationResultStatusEnum!
+type OperationResultReveal implements OperationResult {
+  status: OperationResultStatus!
   consumed_gas: String
   errors: [TezosGenericOperationError]
 }
 
-type OperationResultDelegation {
-  status: OperationResultStatusEnum!
+type OperationResultDelegation implements OperationResult {
+  status: OperationResultStatus!
   consumed_gas: String
   errors: [TezosGenericOperationError]
 }

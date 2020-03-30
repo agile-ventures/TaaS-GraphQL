@@ -1,7 +1,7 @@
 import { OpKind } from '@taquito/taquito';
 
 export const internalOperationResultResolver = {
-    InternalOperationResult: {
+    OperationResult: {
         __resolveType(obj: any, context: any, info: any) {
             switch (obj.kind as OpKind) {
                 case OpKind.REVEAL:

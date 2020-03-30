@@ -60,7 +60,7 @@ export interface InlinedEndorsement {
   signature?: string;
 }
 
-export type OperationContentsBallotEnum = 'nay' | 'yay' | 'pass';
+export type Ballot = 'nay' | 'yay' | 'pass';
 
 export interface OperationContentsEndorsement extends OperationContents {
   kind: 'endorsement';
@@ -109,7 +109,7 @@ export interface OperationContentsBallot extends OperationContents {
   source: string;
   period: number;
   proposal: string;
-  ballot: OperationContentsBallotEnum;
+  ballot: Ballot;
   metadata: any;
 }
 
@@ -410,22 +410,39 @@ export interface OperationObject {
   signature?: string;
 }
 
-export type InternalOperationResultKindEnum =
+export type InternalOperationKind =
   | 'reveal'
   | 'transaction'
   | 'origination'
   | 'delegation';
 
-export type InternalOperationResultEnum =
-  | OperationResultReveal
-  | OperationResultTransaction
-  | OperationResultDelegation
-  | OperationResultOrigination;
-
-export interface OperationResultDelegation {
-  status: OperationResultStatusEnum;
+export interface OperationResult {
+  status: OperationResultStatus;
   consumed_gas?: string;
   errors?: TezosGenericOperationError[];
+}
+
+export interface OperationResultReveal extends OperationResult {
+}
+
+export interface OperationResultTransaction extends OperationResult {
+  storage?: MichelsonV1Expression;
+  big_map_diff?: ContractBigMapDiff;
+  balance_updates?: OperationBalanceUpdates;
+  originated_contracts?: string[];
+  storage_size?: string;
+  paid_storage_size_diff?: string;
+  allocated_destination_contract?: boolean;
+}
+
+export interface OperationResultDelegation extends OperationResult {
+}
+
+export interface OperationResultOrigination extends OperationResult {
+  balance_updates?: OperationBalanceUpdates;
+  originated_contracts?: string[];
+  storage_size?: string;
+  paid_storage_size_diff?: string;
 }
 
 export interface ContractBigMapDiffItem {
@@ -441,27 +458,8 @@ export interface TezosGenericOperationError {
   id: string;
 }
 
-export interface OperationResultTransaction {
-  status: OperationResultStatusEnum;
-  storage?: MichelsonV1Expression;
-  big_map_diff?: ContractBigMapDiff;
-  balance_updates?: OperationBalanceUpdates;
-  originated_contracts?: string[];
-  consumed_gas?: string;
-  storage_size?: string;
-  paid_storage_size_diff?: string;
-  allocated_destination_contract?: boolean;
-  errors?: TezosGenericOperationError[];
-}
-
-export interface OperationResultReveal {
-  status: OperationResultStatusEnum;
-  consumed_gas?: string;
-  errors?: TezosGenericOperationError[];
-}
-
 export interface InternalOperationResult {
-  kind: InternalOperationResultKindEnum;
+  kind: InternalOperationKind;
   source: string;
   nonce: number;
   amount?: string;
@@ -471,32 +469,22 @@ export interface InternalOperationResult {
   balance?: string;
   delegate?: string;
   script?: ScriptedContracts;
-  result: InternalOperationResultEnum;
+  result: OperationResult;
 }
 
-export type MetadataBalanceUpdatesKindEnum = 'contract' | 'freezer';
-export type MetadataBalanceUpdatesCategoryEnum = 'rewards' | 'fees' | 'deposits';
+export type BalanceUpdateKind = 'contract' | 'freezer';
+export type BalanceUpdateCategory = 'rewards' | 'fees' | 'deposits';
 
 export interface OperationMetadataBalanceUpdates {
-  kind: MetadataBalanceUpdatesKindEnum;
-  category?: MetadataBalanceUpdatesCategoryEnum;
+  kind: BalanceUpdateKind;
+  category?: BalanceUpdateCategory;
   contract?: string;
   delegate?: string;
   cycle?: number;
   change: string;
 }
 
-export type OperationResultStatusEnum = 'applied' | 'failed' | 'skipped' | 'backtracked';
-
-export interface OperationResultOrigination {
-  status: OperationResultStatusEnum;
-  balance_updates?: OperationBalanceUpdates;
-  originated_contracts?: string[];
-  consumed_gas?: string;
-  storage_size?: string;
-  paid_storage_size_diff?: string;
-  errors?: TezosGenericOperationError[];
-}
+export type OperationResultStatus = 'applied' | 'failed' | 'skipped' | 'backtracked';
 
 export interface OperationContentsAndResultMetadataOrigination {
   balance_updates: OperationMetadataBalanceUpdates[];
