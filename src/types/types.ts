@@ -121,7 +121,7 @@ export interface OperationContentsReveal extends OperationContents {
   gas_limit: string;
   storage_limit: string;
   public_key: string;
-  metadata: OperationContentsAndResultMetadataReveal;
+  metadata: OperationContentsMetadataReveal;
 }
 
 export interface OperationContentsTransaction extends OperationContents {
@@ -134,7 +134,7 @@ export interface OperationContentsTransaction extends OperationContents {
   amount: string;
   destination: string;
   parameters?: MichelsonV1Expression;
-  metadata: OperationContentsAndResultMetadataTransaction;
+  metadata: OperationContentsMetadataTransaction;
 }
 
 export interface OperationContentsOrigination extends OperationContents {
@@ -147,7 +147,7 @@ export interface OperationContentsOrigination extends OperationContents {
   balance: string;
   delegate?: string;
   script?: ScriptedContracts;
-  metadata: OperationContentsAndResultMetadataOrigination;
+  metadata: OperationContentsMetadataOrigination;
 }
 
 export interface OperationContentsDelegation extends OperationContents {
@@ -158,7 +158,7 @@ export interface OperationContentsDelegation extends OperationContents {
   gas_limit: string;
   storage_limit: string;
   delegate?: string;
-  metadata: OperationContentsAndResultMetadataDelegation;
+  metadata: OperationContentsMetadataDelegation;
 }
 
 export interface OperationContents {
@@ -172,19 +172,19 @@ export interface OperationContentsAndResultMetadataExtended {
   slots: number[];
 }
 
-export interface OperationContentsAndResultMetadataReveal {
+export interface OperationContentsMetadataReveal {
   balance_updates: OperationMetadataBalanceUpdates[];
   operation_result: OperationResultReveal;
   internal_operation_results?: InternalOperationResult[];
 }
 
-export interface OperationContentsAndResultMetadataTransaction {
+export interface OperationContentsMetadataTransaction {
   balance_updates: OperationMetadataBalanceUpdates[];
   operation_result: OperationResultTransaction;
   internal_operation_results?: InternalOperationResult[];
 }
 
-export interface OperationContentsAndResultMetadataDelegation {
+export interface OperationContentsMetadataDelegation {
   balance_updates: OperationMetadataBalanceUpdates[];
   operation_result: OperationResultDelegation;
   internal_operation_results?: InternalOperationResult[];
@@ -486,7 +486,7 @@ export interface OperationMetadataBalanceUpdates {
 
 export type OperationResultStatus = 'applied' | 'failed' | 'skipped' | 'backtracked';
 
-export interface OperationContentsAndResultMetadataOrigination {
+export interface OperationContentsMetadataOrigination {
   balance_updates: OperationMetadataBalanceUpdates[];
   operation_result: OperationResultOrigination;
   internal_operation_results?: InternalOperationResult[];
