@@ -1,7 +1,11 @@
 {
   "name": "taas-graphql",
   "version": "0.0.1",
-  "description": "",
+  "description": "GraphQL interface to Tezos Node",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/agile-ventures/TaaS-GraphQL.git"
+  },
   "main": "index.js",
   "scripts": {
     "start": "node dist/server.js",
