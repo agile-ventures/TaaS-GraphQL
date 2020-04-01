@@ -6,467 +6,485 @@ scalar Long
 scalar DateTime
 
 schema {
-  query: Query
-  # mutation: Mutation
+    query: Query
+    # mutation: Mutation
 }
 
 # Enums
 enum BalanceUpdateKind {
-  CONTRACT
-  FREEZER
+    CONTRACT
+    FREEZER
 }
 
 enum BalanceUpdateCategory {
-  DEPOSITS
-  FEES
-  REWARDS
+    DEPOSITS
+    FEES
+    REWARDS
 }
 
 enum Ballot {
-  NAY
-  PASS
-  YAY
+    NAY
+    PASS
+    YAY
 }
 
 enum OperationKind {
-  ACTIVATE_ACCOUNT
-  BALLOT
-  DELEGATION
-  DOUBLE_BAKING_EVIDENCE
-  DOUBLE_ENDORSEMENT_EVIDENCE
-  ENDORSEMENT
-  ORIGINATION
-  PROPOSALS
-  REVEAL
-  SEED_NONCE_REVELATION
-  TRANSACTION
+    ACTIVATE_ACCOUNT
+    BALLOT
+    DELEGATION
+    DOUBLE_BAKING_EVIDENCE
+    DOUBLE_ENDORSEMENT_EVIDENCE
+    ENDORSEMENT
+    ORIGINATION
+    PROPOSALS
+    REVEAL
+    SEED_NONCE_REVELATION
+    TRANSACTION
 }
 
 enum InternalOperationKind {
-  DELEGATION
-  ORIGINATION
-  REVEAL
-  TRANSACTION
+    DELEGATION
+    ORIGINATION
+    REVEAL
+    TRANSACTION
 }
 
 enum OperationResultStatus {
-  APPLIED
-  BACKTRACKED
-  FAILED
-  SKIPPED
+    APPLIED
+    BACKTRACKED
+    FAILED
+    SKIPPED
 }
 
 # Account is a Tezos account at a particular block.
 type Account {
-  # Address is the address owning the account.
-  address: Address!
-  # Balance is the balance of the account, in mutez.
-  balance: Long!
-  counter: Long!
+    # Address is the address owning the account.
+    address: Address!
+    # Balance is the balance of the account, in mutez.
+    balance: Long!
+    counter: Long!
 }
 
 type BlockFullHeader {
-  level: Long!
-  proto: Long!
-  predecessor: String!
-  timestamp: DateTime!
-  validation_pass: Long!
-  operations_hash: String
-  fitness: [String!]!
-  context: String!
-  priority: Long!
-  proof_of_work_nonce: String!
-  seed_nonce_hash: String
-  signature: String!
+    level: Long!
+    proto: Long!
+    predecessor: String!
+    timestamp: DateTime!
+    validation_pass: Long!
+    operations_hash: String
+    fitness: [String!]!
+    context: String!
+    priority: Long!
+    proof_of_work_nonce: String!
+    seed_nonce_hash: String
+    signature: String!
 }
 
 type OperationMetadataBalanceUpdates {
-  kind: BalanceUpdateKind!
-  category: BalanceUpdateCategory
-  contract: String
-  delegate: String
-  cycle: Long
-  change: String
+    kind: BalanceUpdateKind!
+    category: BalanceUpdateCategory
+    contract: String
+    delegate: String
+    cycle: Long
+    change: String
 }
 
 type OperationContentsMetadata {
-  balance_updates: [OperationMetadataBalanceUpdates]
+    balance_updates: [OperationMetadataBalanceUpdates]
 }
 
 type OperationContentsMetadataExtended {
-  balance_updates: [OperationMetadataBalanceUpdates!]!
-  delegate: String!
-  slots: [Long!]!
+    balance_updates: [OperationMetadataBalanceUpdates!]!
+    delegate: String!
+    slots: [Long!]!
 }
 
 type OperationContentsMetadataReveal {
-  balance_updates: [OperationMetadataBalanceUpdates!]!
-  internal_operation_results: [InternalOperationResultReveal]
-  operation_result: OperationResultReveal
+    balance_updates: [OperationMetadataBalanceUpdates!]!
+    internal_operation_results: [InternalOperationResultReveal]
+    operation_result: OperationResultReveal
 }
 
 type OperationContentsMetadataTransaction {
-  balance_updates: [OperationMetadataBalanceUpdates!]!
-  operation_result: OperationResultTransaction!
-  internal_operation_results: [InternalOperationResultTransaction]
+    balance_updates: [OperationMetadataBalanceUpdates!]!
+    operation_result: OperationResultTransaction!
+    internal_operation_results: [InternalOperationResultTransaction]
 }
 
 type OperationContentsMetadataDelegation {
-  balance_updates: [OperationMetadataBalanceUpdates!]!
-  operation_result: OperationResultDelegation!
-  internal_operation_results: [InternalOperationResultDelegation]
+    balance_updates: [OperationMetadataBalanceUpdates!]!
+    operation_result: OperationResultDelegation!
+    internal_operation_results: [InternalOperationResultDelegation]
 }
 
 type OperationContentsMetadataOrigination {
-  balance_updates: [OperationMetadataBalanceUpdates!]!
-  operation_result: OperationResultOrigination!
-  internal_operation_results: [InternalOperationResultOrigination]
+    balance_updates: [OperationMetadataBalanceUpdates!]!
+    operation_result: OperationResultOrigination!
+    internal_operation_results: [InternalOperationResultOrigination]
 }
 
 interface OperationContent {
-  kind: OperationKind!
-  operation: OperationEntry
+    kind: OperationKind!
+    operation: OperationEntry
 }
 
 type InlinedEndorsementContents implements OperationContent {
-  # kind is always 'endorsement'
-  kind: OperationKind!
-  level: Long!
-  operation: OperationEntry
+    # kind is always 'endorsement'
+    kind: OperationKind!
+    level: Long!
+    operation: OperationEntry
 }
 
 type InlinedEndorsement {
-  branch: String!
-  operations: InlinedEndorsementContents!
-  signature: String
+    branch: String!
+    operations: InlinedEndorsementContents!
+    signature: String
 }
 
 type OperationContentsEndorsement implements OperationContent {
-  # kind is always 'endorsement'
-  kind: OperationKind!
-  level: Long!
-  metadata: OperationContentsMetadataExtended!
-  operation: OperationEntry
+    # kind is always 'endorsement'
+    kind: OperationKind!
+    level: Long!
+    metadata: OperationContentsMetadataExtended!
+    operation: OperationEntry
 }
 
 type OperationContentsDoubleEndorsement implements OperationContent {
-  # kind is always 'double_endorsement_evidence'
-  kind: OperationKind!
-  op1: InlinedEndorsement!
-  op2: InlinedEndorsement!
-  metadata: OperationContentsMetadata!
-  operation: OperationEntry
+    # kind is always 'double_endorsement_evidence'
+    kind: OperationKind!
+    op1: InlinedEndorsement!
+    op2: InlinedEndorsement!
+    metadata: OperationContentsMetadata!
+    operation: OperationEntry
 }
 
 type OperationContentsDoubleBaking implements OperationContent {
-  # kind is always 'double_baking_evidence'
-  kind: OperationKind!
-  bh1: BlockFullHeader!
-  bh2: BlockFullHeader!
-  metadata: OperationContentsMetadata!
-  operation: OperationEntry
+    # kind is always 'double_baking_evidence'
+    kind: OperationKind!
+    bh1: BlockFullHeader!
+    bh2: BlockFullHeader!
+    metadata: OperationContentsMetadata!
+    operation: OperationEntry
 }
 
 type OperationContentsActivateAccount implements OperationContent {
-  # kind is always 'activate_account'
-  kind: OperationKind!
-  pkh: String!
-  secret: String!
-  metadata: OperationContentsMetadata!
-  parent: OperationEntry!
-  operation: OperationEntry
+    # kind is always 'activate_account'
+    kind: OperationKind!
+    pkh: String!
+    secret: String!
+    metadata: OperationContentsMetadata!
+    parent: OperationEntry!
+    operation: OperationEntry
 }
 
 type OperationContentsProposal implements OperationContent {
-  # kind is always 'proposals'
-  kind: OperationKind!
-  source: String!
-  period: Long!
-  proposals: [String!]!
-  # TODO
-  # metadata: any
-  operation: OperationEntry
+    # kind is always 'proposals'
+    kind: OperationKind!
+    source: String!
+    period: Long!
+    proposals: [String!]!
+    # TODO
+    # metadata: any
+    operation: OperationEntry
 }
 
 type OperationContentsBallot implements OperationContent {
-  # kind is always 'ballot'
-  kind: OperationKind!
-  source: String!
-  period: Long!
-  proposal: String!
-  ballot: Ballot!
-  # TODO
-  # metadata: any
-  operation: OperationEntry
+    # kind is always 'ballot'
+    kind: OperationKind!
+    source: String!
+    period: Long!
+    proposal: String!
+    ballot: Ballot!
+    # TODO
+    # metadata: any
+    operation: OperationEntry
 }
 
 type OperationContentsReveal implements OperationContent {
-  # kind is always 'reveal'
-  kind: OperationKind!
-  source: String!
-  fee: String!
-  counter: String!
-  gas_limit: String!
-  storage_limit: String!
-  public_key: String!
-  metadata: OperationContentsMetadataReveal!
-  operation: OperationEntry
+    # kind is always 'reveal'
+    kind: OperationKind!
+    source: String!
+    fee: String!
+    counter: String!
+    gas_limit: String!
+    storage_limit: String!
+    public_key: String!
+    metadata: OperationContentsMetadataReveal!
+    operation: OperationEntry
 }
 
 type OperationContentsTransaction implements OperationContent {
-  # kind is always 'transaction'
-  kind: OperationKind!
-  source: String!
-  fee: String!
-  counter: String!
-  gas_limit: String!
-  storage_limit: String!
-  amount: String!
-  destination: String!
-  parameters: MichelsonV1Expression
-  metadata: OperationContentsMetadataTransaction!
-  operation: OperationEntry
+    # kind is always 'transaction'
+    kind: OperationKind!
+    source: String!
+    fee: String!
+    counter: String!
+    gas_limit: String!
+    storage_limit: String!
+    amount: String!
+    destination: String!
+    parameters: MichelsonV1Expression
+    metadata: OperationContentsMetadataTransaction!
+    operation: OperationEntry
 }
 
 type OperationContentsDelegation implements OperationContent {
-  # kind is always 'delegation'
-  kind: OperationKind!
-  source: String!
-  fee: String!
-  counter: String!
-  gas_limit: String!
-  storage_limit: String!
-  delegate: String
-  metadata: OperationContentsMetadataDelegation!
-  operation: OperationEntry
+    # kind is always 'delegation'
+    kind: OperationKind!
+    source: String!
+    fee: String!
+    counter: String!
+    gas_limit: String!
+    storage_limit: String!
+    delegate: String
+    metadata: OperationContentsMetadataDelegation!
+    operation: OperationEntry
 }
 
 type OperationContentsSeedNonceRevelation implements OperationContent {
-  # kind is always 'seed_nonce_revelation'
-  kind: OperationKind!
-  level: Long!
-  nonce: String!
-  metadata: OperationContentsMetadata!
-  operation: OperationEntry
+    # kind is always 'seed_nonce_revelation'
+    kind: OperationKind!
+    level: Long!
+    nonce: String!
+    metadata: OperationContentsMetadata!
+    operation: OperationEntry
 }
 
 type OperationContentsOrigination implements OperationContent {
-  # kind is always 'origination'
-  kind: OperationKind!
-  source: String
-  fee: String!
-  counter: String!
-  gas_limit: String!
-  storage_limit: String!
-  balance: String!
-  delegate: String
-  script: ScriptedContracts
-  metadata: OperationContentsMetadataOrigination!
-  operation: OperationEntry
+    # kind is always 'origination'
+    kind: OperationKind!
+    source: String
+    fee: String!
+    counter: String!
+    gas_limit: String!
+    storage_limit: String!
+    balance: String!
+    delegate: String
+    script: ScriptedContracts
+    metadata: OperationContentsMetadataOrigination!
+    operation: OperationEntry
 }
 
 type MichelsonV1ExpressionBase {
-  int: String
-  String: String
-  bytes: String
+    int: String
+    String: String
+    bytes: String
 }
 
 type MichelsonV1ExpressionExtended {
-  prim: String!
-  args: [MichelsonV1Expression]
-  annots: [String]
+    prim: String!
+    args: [MichelsonV1Expression]
+    annots: [String]
 }
 
-union MichelsonV1Expression =
-    MichelsonV1ExpressionBase
-  | MichelsonV1ExpressionExtended
+union MichelsonV1Expression = MichelsonV1ExpressionBase | MichelsonV1ExpressionExtended
 
 type OperationEntry {
-  protocol: String!
-  chain_id: String!
-  hash: String!
-  branch: String!
-  contents: [OperationContent]
-  signature: String!
+    protocol: String!
+    chain_id: String!
+    hash: String!
+    branch: String!
+    contents: [OperationContent]
+    signature: String!
 }
 
 type ContractBigMapDiffItem {
-  key_hash: String!
-  key: MichelsonV1Expression!
-  value: MichelsonV1Expression
+    key_hash: String!
+    key: MichelsonV1Expression!
+    value: MichelsonV1Expression
 }
 
 type OperationBalanceUpdates {
-  kind: BalanceUpdateKind!
-  category: BalanceUpdateCategory
-  delegate: String
-  cycle: Long
-  contract: String
-  change: String!
+    kind: BalanceUpdateKind!
+    category: BalanceUpdateCategory
+    delegate: String
+    cycle: Long
+    contract: String
+    change: String!
 }
 
 type TezosGenericOperationError {
-  kind: String
-  id: String
+    kind: String
+    id: String
 }
 
 type ScriptedContracts {
-  code: [MichelsonV1Expression!]!
-  storage: MichelsonV1Expression!
+    code: [MichelsonV1Expression!]!
+    storage: MichelsonV1Expression!
 }
 
 type TransactionOperationParameter {
-  entrypoint: String,
-  value: MichelsonV1Expression
+    entrypoint: String
+    value: MichelsonV1Expression
 }
 
 interface InternalOperationResult {
-  kind: InternalOperationKind!,
-  info: InternalOperationResultInfo,
+    kind: InternalOperationKind!
+    info: InternalOperationResultInfo
 }
 
 type InternalOperationResultInfo {
-  source: String!,
-  nonce: Long!,
-  amount: String,
-  destination: String,
-  parameters: TransactionOperationParameter,
-  public_key: String,
-  balance: String,
-  delegate: String,
-  script: ScriptedContracts,
+    source: String!
+    nonce: Long!
+    amount: String
+    destination: String
+    parameters: TransactionOperationParameter
+    public_key: String
+    balance: String
+    delegate: String
+    script: ScriptedContracts
 }
 
 type InternalOperationResultTransaction implements InternalOperationResult {
-  kind: InternalOperationKind!,
-  info: InternalOperationResultInfo,
-  result: OperationResultTransaction
+    kind: InternalOperationKind!
+    info: InternalOperationResultInfo
+    result: OperationResultTransaction
 }
 
 type InternalOperationResultReveal implements InternalOperationResult {
-  kind: InternalOperationKind!,
-  info: InternalOperationResultInfo,
-  result: OperationResultReveal
+    kind: InternalOperationKind!
+    info: InternalOperationResultInfo
+    result: OperationResultReveal
 }
 
 type InternalOperationResultDelegation implements InternalOperationResult {
-  kind: InternalOperationKind!,
-  info: InternalOperationResultInfo,
-  result: OperationResultDelegation
+    kind: InternalOperationKind!
+    info: InternalOperationResultInfo
+    result: OperationResultDelegation
 }
 
 type InternalOperationResultOrigination implements InternalOperationResult {
-  kind: InternalOperationKind!,
-  info: InternalOperationResultInfo,
-  result: OperationResultOrigination
+    kind: InternalOperationKind!
+    info: InternalOperationResultInfo
+    result: OperationResultOrigination
 }
 
 interface OperationResult {
-  status: OperationResultStatus!
-  consumed_gas: String
-  errors: [TezosGenericOperationError]
+    status: OperationResultStatus!
+    consumed_gas: String
+    errors: [TezosGenericOperationError]
 }
 
 type OperationResultTransaction implements OperationResult {
-  status: OperationResultStatus!
-  consumed_gas: String
-  errors: [TezosGenericOperationError]
-  storage_base: MichelsonV1ExpressionBase
-  storage_extended: MichelsonV1ExpressionExtended
-  big_map_diff: [ContractBigMapDiffItem]
-  balance_updates: [OperationBalanceUpdates]
-  originated_contracts: [String]
-  storage_size: String
-  paid_storage_size_diff: String
-  allocated_destination_contract: Boolean
+    status: OperationResultStatus!
+    consumed_gas: String
+    errors: [TezosGenericOperationError]
+    storage_base: MichelsonV1ExpressionBase
+    storage_extended: MichelsonV1ExpressionExtended
+    big_map_diff: [ContractBigMapDiffItem]
+    balance_updates: [OperationBalanceUpdates]
+    originated_contracts: [String]
+    storage_size: String
+    paid_storage_size_diff: String
+    allocated_destination_contract: Boolean
 }
 
 type OperationResultOrigination implements OperationResult {
-  status: OperationResultStatus!
-  consumed_gas: String
-  errors: [TezosGenericOperationError]
-  balance_updates: OperationBalanceUpdates
-  originated_contracts: [String]
-  storage_size: String
-  paid_storage_size_diff: String
+    status: OperationResultStatus!
+    consumed_gas: String
+    errors: [TezosGenericOperationError]
+    balance_updates: OperationBalanceUpdates
+    originated_contracts: [String]
+    storage_size: String
+    paid_storage_size_diff: String
 }
 
 type OperationResultReveal implements OperationResult {
-  status: OperationResultStatus!
-  consumed_gas: String
-  errors: [TezosGenericOperationError]
+    status: OperationResultStatus!
+    consumed_gas: String
+    errors: [TezosGenericOperationError]
 }
 
 type OperationResultDelegation implements OperationResult {
-  status: OperationResultStatus!
-  consumed_gas: String
-  errors: [TezosGenericOperationError]
+    status: OperationResultStatus!
+    consumed_gas: String
+    errors: [TezosGenericOperationError]
 }
 
 type MaxOperationListLength {
-  max_size: Long!
-  max_op: Long!
+    max_size: Long!
+    max_op: Long!
 }
 
 type Level {
-  level: Long!
-  level_position: Long!
-  cycle: Long!
-  cycle_position: Long!
-  voting_period: Long!
-  voting_period_position: Long!
-  expected_commitment: Boolean
+    level: Long!
+    level_position: Long!
+    cycle: Long!
+    cycle_position: Long!
+    voting_period: Long!
+    voting_period_position: Long!
+    expected_commitment: Boolean
 }
 
 type TestChainStatus {
-  status: String
+    status: String
+}
+
+type Frozenbalancebycycle {
+    cycle: Long!
+    deposit: Long!
+    fees: Long!
+    rewards: Long!
+}
+
+type Delegate {
+    balance: Long!
+    frozen_balance: Long!
+    frozen_balance_by_cycle: [Frozenbalancebycycle]
+    staking_balance: Long!
+    delegated_contracts: [String]
+    delegated_balance: Long!
+    deactivated: Boolean
+    grace_period: Long!
 }
 
 # Block is a Tezos block.
 type Block {
-  protocol: String!
-  chain_id: String!
-  hash: String!
-  header: BlockFullHeader!
-  metadata: BlockMetadata!
-  operations(hash: String): [[OperationEntry]]
-  activations(hash: String): [OperationContentsActivateAccount]!
-  ballots(hash: String): [OperationContentsBallot]!
-  delegations(hash: String): [OperationContentsDelegation]!
-  double_baking_evidence(hash: String): [OperationContentsDoubleBaking]!
-  double_endorsement_evidence(hash: String): [OperationContentsDoubleEndorsement]!
-  endorsements(hash: String): [OperationContentsEndorsement]!
-  originations(hash: String): [OperationContentsOrigination]!
-  proposals(hash: String): [OperationContentsProposal]!
-  reveals(hash: String): [OperationContentsReveal]!
-  seed_nonce_revelations(hash: String): [OperationContentsSeedNonceRevelation]!
-  transactions(hash: String, source: Address, destination: Address): [OperationContentsTransaction]!
+    protocol: String!
+    chain_id: String!
+    hash: String!
+    header: BlockFullHeader!
+    metadata: BlockMetadata!
+    operations(hash: String): [[OperationEntry]]
+    activations(hash: String): [OperationContentsActivateAccount]!
+    ballots(hash: String): [OperationContentsBallot]!
+    delegations(hash: String): [OperationContentsDelegation]!
+    double_baking_evidence(hash: String): [OperationContentsDoubleBaking]!
+    double_endorsement_evidence(hash: String): [OperationContentsDoubleEndorsement]!
+    endorsements(hash: String): [OperationContentsEndorsement]!
+    originations(hash: String): [OperationContentsOrigination]!
+    proposals(hash: String): [OperationContentsProposal]!
+    reveals(hash: String): [OperationContentsReveal]!
+    seed_nonce_revelations(hash: String): [OperationContentsSeedNonceRevelation]!
+    transactions(hash: String, source: Address, destination: Address): [OperationContentsTransaction]!
 }
 
 type BlockMetadata {
-  protocol: String!
-  next_protocol: String!
-  test_chain_status: TestChainStatus!
-  max_operations_ttl: Long!
-  max_operation_data_length: Long!
-  max_block_header_length: Long!
-  max_operation_list_length: [MaxOperationListLength]
-  baker: String!
-  level: Level!
-  voting_period_kind: String!
-  # TODO
-  # nonce_hash: any
-  consumed_gas: String
-  # TODO
-  #deactivated: any[]
-  balance_updates: OperationBalanceUpdates
+    protocol: String!
+    next_protocol: String!
+    test_chain_status: TestChainStatus!
+    max_operations_ttl: Long!
+    max_operation_data_length: Long!
+    max_block_header_length: Long!
+    max_operation_list_length: [MaxOperationListLength]
+    baker: String!
+    level: Level!
+    voting_period_kind: String!
+    # TODO
+    # nonce_hash: any
+    consumed_gas: String
+    # TODO
+    #deactivated: any[]
+    balance_updates: OperationBalanceUpdates
 }
 
 type Query {
-  # Block fetches an Tezos block by number, hash or relative pointer (head~n). 
-  # If neither is supplied, the most recent known block (head) is returned.
-  block(block: String): Block!
-  # Blocks returns all the blocks between two levels, inclusive. If
-  # to is not supplied, it defaults to the most recent known block (head).
-  blocks(from: Long!, to: Long): [Block]!
+    # Block fetches a Tezos block by number, hash or relative pointer (head~n).
+    # If neither is supplied, the most recent known block (head) is returned.
+    block(block: String): Block!
+    # Blocks returns all the blocks between two levels, inclusive. If
+    # to is not supplied, it defaults to the most recent known block (head).
+    blocks(from: Long!, to: Long): [Block]!
+
+    delegate(address: String!, block: String): Delegate!
 }

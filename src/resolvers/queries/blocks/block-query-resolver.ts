@@ -1,7 +1,7 @@
-import { TezosRpcService } from "../../services/tezos-rpc-service";
-import { container } from 'tsyringe';
-import { convertResponse as responseToBlock } from './block-utils';
-import { Block } from "../../types/types";
+import { TezosRpcService } from "../../../services/tezos-rpc-service";
+import { container } from "tsyringe";
+import { convertResponse as responseToBlock } from "./block-utils";
+import { Block } from "../../../types/types";
 
 const tezosRpcService = container.resolve(TezosRpcService);
 export const blockQueryResolver = {
@@ -13,4 +13,4 @@ export const blockQueryResolver = {
             return responseToBlock(await tezosRpcService.client.getBlock());
         }
     }
-}
+};

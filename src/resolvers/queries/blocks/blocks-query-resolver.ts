@@ -1,16 +1,16 @@
-import { BlockResponse } from '@taquito/rpc';
-import { UserInputError } from 'apollo-server-express';
-import { reverse } from 'lodash';
-import { container } from 'tsyringe';
+import { BlockResponse } from "@taquito/rpc";
+import { UserInputError } from "apollo-server-express";
+import { reverse } from "lodash";
+import { container } from "tsyringe";
 
-import { TezosRpcService } from '../../services/tezos-rpc-service';
-import { Block } from '../../types/types';
-import { convertResponse } from './block-utils';
+import { TezosRpcService } from "../../../services/tezos-rpc-service";
+import { Block } from "../../../types/types";
+import { convertResponse } from "./block-utils";
 
 const tezosRpcService = container.resolve(TezosRpcService);
 export const blocksQueryResolver = {
     Query: {
-        async blocks(obj: any, args: { from: number, to: number | null }, context: any): Promise<Block[]> {
+        async blocks(obj: any, args: { from: number; to: number | null }, context: any): Promise<Block[]> {
             let firstBlock: Block;
             let blocks: Block[] = [];
             if (args.to) {
@@ -24,8 +24,7 @@ export const blocksQueryResolver = {
                 }
 
                 firstBlock = convertResponse(await tezosRpcService.client.getBlock({ block: args.to.toString() }));
-            }
-            else {
+            } else {
                 firstBlock = convertResponse(await tezosRpcService.client.getBlock());
             }
             blocks.push(firstBlock);
@@ -35,4 +34,4 @@ export const blocksQueryResolver = {
             return reverse(blocks);
         }
     }
-}
+};
