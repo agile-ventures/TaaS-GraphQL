@@ -1,7 +1,7 @@
-import { OpKind } from "@taquito/rpc";
+import { OpKind } from '@taquito/rpc';
 
-import { Block, OperationContents, OperationContentsTransaction, OperationEntry } from "../types/types";
-import { flatten } from "lodash";
+import { Block, OperationContents, OperationContentsTransaction, OperationEntry } from '../types/types';
+import { flatten } from 'lodash';
 
 export const blockResolver = {
     Block: {
@@ -30,8 +30,8 @@ export const blockResolver = {
                 return root.operations.map(opsArray => opsArray.filter(o => o.hash == args.hash).map(extendOperation));
             }
             return root.operations.map(opsArray => opsArray.map(extendOperation));
-        }
-    }
+        },
+    },
 };
 
 function extendOperation(op: OperationEntry): OperationEntry {

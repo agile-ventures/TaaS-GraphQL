@@ -1,11 +1,11 @@
-import { BlockResponse } from "@taquito/rpc";
-import { UserInputError } from "apollo-server-express";
-import { reverse } from "lodash";
-import { container } from "tsyringe";
+import { BlockResponse } from '@taquito/rpc';
+import { UserInputError } from 'apollo-server-express';
+import { reverse } from 'lodash';
+import { container } from 'tsyringe';
 
-import { TezosRpcService } from "../../../services/tezos-rpc-service";
-import { Block } from "../../../types/types";
-import { convertResponse } from "./block-utils";
+import { TezosRpcService } from '../../../services/tezos-rpc-service';
+import { Block } from '../../../types/types';
+import { convertResponse } from './block-utils';
 
 const tezosRpcService = container.resolve(TezosRpcService);
 export const blocksQueryResolver = {
@@ -32,6 +32,6 @@ export const blocksQueryResolver = {
                 blocks.push(convertResponse(await tezosRpcService.client.getBlock({ block: level.toString() })));
             }
             return reverse(blocks);
-        }
-    }
+        },
+    },
 };
