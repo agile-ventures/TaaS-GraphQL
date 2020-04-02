@@ -342,7 +342,11 @@ export type ForgeOperationsParams = Pick<OperationObject, 'branch' | 'contents'>
 
 export type TimeStampMixed = Date | string;
 
-export type BalanceUpdateKindEnum = 'contract' | 'freezer';
+export enum BalanceUpdateKind {
+  CONTRACT = 'contract',
+  FREEZER =  'freezer'
+};
+
 export type BalanceUpdateCategoryEnum = 'rewards' | 'fees' | 'deposits';
 
 export interface MichelsonV1ExpressionBase {
@@ -369,7 +373,7 @@ export interface ScriptedContracts {
 //   balanceUpdates:
 // }
 export interface OperationBalanceUpdatesItem {
-  kind: BalanceUpdateKindEnum;
+  kind: BalanceUpdateKind;
   category?: BalanceUpdateCategoryEnum;
   delegate?: string;
   cycle?: number;
@@ -472,7 +476,6 @@ export interface InternalOperationResult {
   result: OperationResult;
 }
 
-export type BalanceUpdateKind = 'contract' | 'freezer';
 export type BalanceUpdateCategory = 'rewards' | 'fees' | 'deposits';
 
 export interface OperationMetadataBalanceUpdates {
