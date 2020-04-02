@@ -21,7 +21,7 @@ if (process.env.GRAPHQL_ENABLE_PLAYGROUND === 'true') {
   config.playground = true;
 }
 
-if (process.env.GHRAPHQL_ENABLE_INTROSPECTION === 'true') { 
+if (process.env.GRAPHQL_ENABLE_INTROSPECTION === 'true') { 
   config.introspection = true;
 }
 
