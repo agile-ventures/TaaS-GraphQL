@@ -1,5 +1,5 @@
 import express from 'express';
-import { ApolloServer, ApolloServerExpressConfig } from 'apollo-server-express';
+import { ApolloServer, ApolloServerExpressConfig, AuthenticationError } from 'apollo-server-express';
 import depthLimit from 'graphql-depth-limit';
 import { createServer } from 'http';
 import compression from 'compression';
@@ -7,6 +7,7 @@ import cors from 'cors';
 import schema from './schema';
 import dotenv from 'dotenv';
 import 'reflect-metadata';
+import { ExpressContext } from 'apollo-server-express/dist/ApolloServer';
 
 dotenv.config();
 // TODO Check here that we have all mandatory configs in place from ENV
@@ -17,12 +18,20 @@ const config: ApolloServerExpressConfig = {
   validationRules: [depthLimit(7)],
 }
 
-if (process.env.GRAPHQL_ENABLE_PLAYGROUND === 'true') { 
+if (process.env.GRAPHQL_ENABLE_PLAYGROUND === 'true') {
   config.playground = true;
 }
 
-if (process.env.GRAPHQL_ENABLE_INTROSPECTION === 'true') { 
+if (process.env.GRAPHQL_ENABLE_INTROSPECTION === 'true') {
   config.introspection = true;
+}
+
+if (process.env.ENABLE_API_KEY === 'true' && process.env.API_KEY) {
+  config.context = (ctx: ExpressContext) => {
+    if (ctx.req.header('api-key') !== process.env.API_KEY) {
+      throw new AuthenticationError('api-key is wrong or not provided!');
+    }
+  }
 }
 
 const server = new ApolloServer(config);
