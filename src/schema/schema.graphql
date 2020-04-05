@@ -383,7 +383,7 @@ type OperationResultOrigination implements OperationResult {
     status: OperationResultStatus!
     consumed_gas: String
     errors: [TezosGenericOperationError]
-    balance_updates: OperationBalanceUpdates
+    balance_updates: [OperationBalanceUpdates]
     originated_contracts: [String]
     storage_size: String
     paid_storage_size_diff: String
@@ -403,7 +403,7 @@ type OperationResultDelegation implements OperationResult {
 
 type MaxOperationListLength {
     max_size: Long!
-    max_op: Long!
+    max_op: Long
 }
 
 type Level {
@@ -497,7 +497,7 @@ type BlockMetadata {
     consumed_gas: String
     # TODO
     #deactivated: any[]
-    balance_updates: OperationBalanceUpdates
+    balance_updates: [OperationBalanceUpdates]
 }
 
 type Query {
