@@ -539,7 +539,7 @@ export interface TestChainStatus {
 
 export interface MaxOperationListLength {
   max_size: number;
-  max_op: number;
+  max_op?: number;
 }
 
 export interface Level {
