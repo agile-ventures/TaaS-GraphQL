@@ -173,8 +173,7 @@ type OperationContentsActivateAccount implements OperationContent {
     pkh: String!
     secret: String!
     metadata: OperationContentsMetadata!
-    parent: OperationEntry!
-    operation: OperationEntry
+    operation: OperationEntry!
 }
 
 type OperationContentsProposal implements OperationContent {
@@ -185,7 +184,7 @@ type OperationContentsProposal implements OperationContent {
     proposals: [String!]!
     # TODO
     # metadata: any
-    operation: OperationEntry
+    operation: OperationEntry!
 }
 
 type OperationContentsBallot implements OperationContent {
@@ -197,7 +196,7 @@ type OperationContentsBallot implements OperationContent {
     ballot: Ballot!
     # TODO
     # metadata: any
-    operation: OperationEntry
+    operation: OperationEntry!
 }
 
 type OperationContentsReveal implements OperationContent {
@@ -210,7 +209,7 @@ type OperationContentsReveal implements OperationContent {
     storage_limit: String!
     public_key: String!
     metadata: OperationContentsMetadataReveal!
-    operation: OperationEntry
+    operation: OperationEntry!
 }
 
 type OperationContentsTransaction implements OperationContent {
@@ -225,7 +224,7 @@ type OperationContentsTransaction implements OperationContent {
     destination: String!
     parameters: MichelsonV1Expression
     metadata: OperationContentsMetadataTransaction!
-    operation: OperationEntry
+    operation: OperationEntry!
 }
 
 type OperationContentsDelegation implements OperationContent {
@@ -238,7 +237,7 @@ type OperationContentsDelegation implements OperationContent {
     storage_limit: String!
     delegate: String
     metadata: OperationContentsMetadataDelegation!
-    operation: OperationEntry
+    operation: OperationEntry!
 }
 
 type OperationContentsSeedNonceRevelation implements OperationContent {
@@ -247,7 +246,7 @@ type OperationContentsSeedNonceRevelation implements OperationContent {
     level: Long!
     nonce: String!
     metadata: OperationContentsMetadata!
-    operation: OperationEntry
+    operation: OperationEntry!
 }
 
 type OperationContentsOrigination implements OperationContent {
@@ -262,7 +261,7 @@ type OperationContentsOrigination implements OperationContent {
     delegate: String
     script: ScriptedContracts
     metadata: OperationContentsMetadataOrigination!
-    operation: OperationEntry
+    operation: OperationEntry!
 }
 
 type MichelsonV1ExpressionBase {
