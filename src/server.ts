@@ -28,8 +28,8 @@ if (process.env.GRAPHQL_ENABLE_INTROSPECTION === 'true') {
 
 if (process.env.ENABLE_API_KEY === 'true' && process.env.API_KEY) {
   config.context = (ctx: ExpressContext) => {
-    if (ctx.req.header('api-key') !== process.env.API_KEY) {
-      throw new AuthenticationError('api-key is wrong or not provided!');
+    if (ctx.req.header('X-TaaS-Key') !== process.env.API_KEY) {
+      throw new AuthenticationError('Provided X-TaaS-Key header value is wrong or empty!');
     }
   }
 }
