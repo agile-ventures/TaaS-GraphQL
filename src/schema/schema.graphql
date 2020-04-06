@@ -505,7 +505,7 @@ type Query {
     block(block: String): Block!
     # Blocks returns all the blocks between two levels, inclusive. If
     # to is not supplied, it defaults to the most recent known block (head).
-    blocks(from: Long!, to: Long): [Block]!
+    blocks(from: Long, to: Long, count: Int): [Block]!
 
     delegate(address: String!, block: String): Delegate!
 }
