@@ -66,7 +66,7 @@ export const blocksQueryResolver = {
 
             let blocks: Block[] = [convertResponse(firstBlock || await fetchBlock(fromLevel.toString()))];
             for (let level = fromLevel + 1; level < toLevel; level++) {
-                blocks.push(convertResponse(await tezosRpcService.client.getBlock({ block: level.toString() })));
+                blocks.push(convertResponse(await fetchBlock(level.toString())));
             }
             blocks.push(convertResponse(lastBlock || await fetchBlock(toLevel.toString())));
             return blocks;
