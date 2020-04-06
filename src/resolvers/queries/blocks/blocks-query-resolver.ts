@@ -68,7 +68,9 @@ export const blocksQueryResolver = {
             for (let level = fromLevel + 1; level < toLevel; level++) {
                 blocks.push(convertResponse(await fetchBlock(level.toString())));
             }
-            blocks.push(convertResponse(lastBlock || await fetchBlock(toLevel.toString())));
+            if (fromLevel != toLevel) {
+                blocks.push(convertResponse(lastBlock || await fetchBlock(toLevel.toString())));
+            }
             return blocks;
         },
     },
