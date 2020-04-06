@@ -38,7 +38,7 @@ export const blocksQueryResolver = {
             let [fromLevel, firstBlock] = await getLevel(args.from);
             let [toLevel, lastBlock] = await getLevel(args.to);
 
-            if (toLevel - fromLevel > +process.env.MAX_BLOCKS!) {
+            if (toLevel - fromLevel + 1 > +process.env.MAX_BLOCKS!) {
                 throw new UserInputError(`Number of blocks has to be lower than ${process.env.MAX_BLOCKS!}.`);
             }
 
