@@ -4,6 +4,8 @@ scalar Address
 scalar Long
 # Datetime is a timestamp specified as a ISO-8601 UTC date string (2020-02-04T15:31:39Z)
 scalar DateTime
+# JSON represents any valid JSON object
+scalar JSON
 
 schema {
     query: Query
@@ -429,6 +431,34 @@ type Frozenbalancebycycle {
     rewards: Long!
 }
 
+type EntrypointUnreachable {
+    path: [String]!
+}
+
+type Entrypoint {
+    entrypoints: JSON!
+    unreachable: EntrypointUnreachable
+}
+
+type InvalidManagerKey {
+    key: String
+}
+
+type ManagerKey {
+    key: String!
+    invalid: Boolean
+}
+
+type Contract {
+    balance: Long!
+    script: ScriptedContracts
+    counter: String
+    entrypoint: Entrypoint
+    delegate: String # - should we load the delegate with this address?
+    manager_key: ManagerKey
+    storage: MichelsonV1Expression!
+}
+
 type Delegate {
     balance: Long!
     frozen_balance: Long!
@@ -447,6 +477,8 @@ type Block {
     hash: String!
     header: BlockFullHeader!
     metadata: BlockMetadata!
+    delegate(address: Address): Delegate
+    contract(address: Address): Contract
     operations(hash: String): [[OperationEntry]]
     # Returns activations from block. Results can be filtered by
     # operation hash, or address (pkh).
@@ -509,6 +541,4 @@ type Query {
     # Blocks returns all the blocks between two levels, inclusive. If
     # to is not supplied, it defaults to the most recent known block (head).
     blocks(from: Long, to: Long, count: Int): [Block]!
-
-    delegate(address: String!, block: String): Delegate!
 }

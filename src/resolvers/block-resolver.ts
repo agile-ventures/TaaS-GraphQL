@@ -1,6 +1,8 @@
 import { OperationResultStatusEnum, OpKind } from '@taquito/rpc';
 import { flatten } from 'lodash';
+import { container } from 'tsyringe';
 
+import { TezosRpcService } from '../services/tezos-rpc-service';
 import {
     BalanceUpdateKind,
     Ballot,
@@ -17,6 +19,8 @@ import {
     OperationContentsReveal,
     OperationContentsTransaction,
     OperationEntry,
+    ContractResponse,
+    DelegatesResponse,
 } from '../types/types';
 
 interface OperationArguments {
@@ -30,6 +34,8 @@ interface OperationArguments {
     source?: string;
     status?: OperationResultStatusEnum;
 }
+
+const tezosRpcService = container.resolve(TezosRpcService);
 
 export const blockResolver = {
     Block: {
@@ -49,6 +55,19 @@ export const blockResolver = {
                 return root.operations.map(opsArray => opsArray.filter(o => o.hash == args.hash).map(extendOperation));
             }
             return root.operations.map(opsArray => opsArray.map(extendOperation));
+        },
+        delegate: async (root: Block, args: { address: string }): Promise<DelegatesResponse> => {
+            const result = await tezosRpcService.client.getDelegates(args.address, { block: root.hash });
+            return result;
+        },
+        contract: async (root: Block, args: { address: string }): Promise<ContractResponse> => {
+            const result = await tezosRpcService.client.getContract(args.address, { block: root.hash });
+
+            return {
+                ...result,
+                blockHash: root.hash,
+                address: args.address,
+            };
         },
     },
 };
@@ -103,7 +122,9 @@ function filterDelegations(operations: OperationEntry[], opKind: OpKind, args: O
 function filterDoubleBakings(operations: OperationEntry[], opKind: OpKind, args: OperationArguments): OperationContents[] {
     let filteredOps = filterOperations(operations, opKind, args);
     if (args?.delegate) {
-        filteredOps = filteredOps.filter(o => (<OperationContentsDoubleBaking>o).metadata.balance_updates.find(bu => bu.kind == BalanceUpdateKind.FREEZER)?.delegate == args.delegate);
+        filteredOps = filteredOps.filter(
+            o => (<OperationContentsDoubleBaking>o).metadata.balance_updates.find(bu => bu.kind == BalanceUpdateKind.FREEZER)?.delegate == args.delegate
+        );
     }
     return filteredOps;
 }
@@ -111,7 +132,9 @@ function filterDoubleBakings(operations: OperationEntry[], opKind: OpKind, args:
 function filterDoubleEndorsements(operations: OperationEntry[], opKind: OpKind, args: OperationArguments): OperationContents[] {
     let filteredOps = filterOperations(operations, opKind, args);
     if (args?.delegate) {
-        filteredOps = filteredOps.filter(o => (<OperationContentsDoubleEndorsement>o).metadata.balance_updates.find(bu => bu.kind == BalanceUpdateKind.FREEZER)?.delegate == args.delegate);
+        filteredOps = filteredOps.filter(
+            o => (<OperationContentsDoubleEndorsement>o).metadata.balance_updates.find(bu => bu.kind == BalanceUpdateKind.FREEZER)?.delegate == args.delegate
+        );
     }
     return filteredOps;
 }
@@ -176,4 +199,3 @@ function filterTransactions(operations: OperationEntry[], opKind: OpKind, args: 
     }
     return filteredOps;
 }
-

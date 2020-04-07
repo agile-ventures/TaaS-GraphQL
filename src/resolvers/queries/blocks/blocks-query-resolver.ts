@@ -34,7 +34,7 @@ async function getLevel(argument: string | null): Promise<[number, BlockResponse
 
 export const blocksQueryResolver = {
     Query: {
-        async blocks(obj: any, args: { from: string | null; to: string | null, count: number | null }, context: any): Promise<Block[]> {
+        async blocks(obj: any, args: { from: string | null; to: string | null; count: number | null }, context: any): Promise<Block[]> {
             if (args.from == null && args.to == null && args.count == null) {
                 throw new UserInputError(`Neither "from", "to" or "count" argument specified`);
             }
@@ -77,7 +77,7 @@ export const blocksQueryResolver = {
                 throw new UserInputError(`Number of blocks has to be lower than ${process.env.MAX_BLOCKS!}.`);
             }
 
-            let blocks: Block[] = [convertResponse(firstBlock || await fetchBlock(fromLevel.toString()))];
+            let blocks: Block[] = [convertResponse(firstBlock || (await fetchBlock(fromLevel.toString())))];
             for (let i = 1; i < count; i++) {
                 if (i == count - 1 && lastBlock != null) {
                     // if we are at the last block and we have fetched it already...
@@ -94,7 +94,7 @@ export const blocksQueryResolver = {
                         }
                         throw e;
                     }
-                    blocks.push(convertResponse(block));    
+                    blocks.push(convertResponse(block));
                 }
             }
             return blocks;
