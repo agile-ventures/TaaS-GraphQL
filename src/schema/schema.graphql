@@ -125,14 +125,13 @@ type OperationContentsMetadataOrigination {
 
 interface OperationContent {
     kind: OperationKind!
-    operation: OperationEntry
+    operation: OperationEntryInfo!
 }
 
-type InlinedEndorsementContents implements OperationContent {
+type InlinedEndorsementContents {
     # kind is always 'endorsement'
     kind: OperationKind!
     level: Long!
-    operation: OperationEntry
 }
 
 type InlinedEndorsement {
@@ -146,7 +145,7 @@ type OperationContentsEndorsement implements OperationContent {
     kind: OperationKind!
     level: Long!
     metadata: OperationContentsMetadataExtended!
-    operation: OperationEntry
+    operation: OperationEntryInfo!
 }
 
 type OperationContentsDoubleEndorsement implements OperationContent {
@@ -155,7 +154,7 @@ type OperationContentsDoubleEndorsement implements OperationContent {
     op1: InlinedEndorsement!
     op2: InlinedEndorsement!
     metadata: OperationContentsMetadata!
-    operation: OperationEntry
+    operation: OperationEntryInfo!
 }
 
 type OperationContentsDoubleBaking implements OperationContent {
@@ -164,7 +163,7 @@ type OperationContentsDoubleBaking implements OperationContent {
     bh1: BlockFullHeader!
     bh2: BlockFullHeader!
     metadata: OperationContentsMetadata!
-    operation: OperationEntry
+    operation: OperationEntryInfo!
 }
 
 type OperationContentsActivateAccount implements OperationContent {
@@ -173,7 +172,7 @@ type OperationContentsActivateAccount implements OperationContent {
     pkh: String!
     secret: String!
     metadata: OperationContentsMetadata!
-    operation: OperationEntry!
+    operation: OperationEntryInfo!
 }
 
 type OperationContentsProposal implements OperationContent {
@@ -184,7 +183,7 @@ type OperationContentsProposal implements OperationContent {
     proposals: [String!]!
     # TODO
     # metadata: any
-    operation: OperationEntry!
+    operation: OperationEntryInfo!
 }
 
 type OperationContentsBallot implements OperationContent {
@@ -196,7 +195,7 @@ type OperationContentsBallot implements OperationContent {
     ballot: Ballot!
     # TODO
     # metadata: any
-    operation: OperationEntry!
+    operation: OperationEntryInfo!
 }
 
 type OperationContentsReveal implements OperationContent {
@@ -209,7 +208,7 @@ type OperationContentsReveal implements OperationContent {
     storage_limit: String!
     public_key: String!
     metadata: OperationContentsMetadataReveal!
-    operation: OperationEntry!
+    operation: OperationEntryInfo!
 }
 
 type OperationContentsTransaction implements OperationContent {
@@ -224,7 +223,7 @@ type OperationContentsTransaction implements OperationContent {
     destination: String!
     parameters: MichelsonV1Expression
     metadata: OperationContentsMetadataTransaction!
-    operation: OperationEntry!
+    operation: OperationEntryInfo!
 }
 
 type OperationContentsDelegation implements OperationContent {
@@ -237,7 +236,7 @@ type OperationContentsDelegation implements OperationContent {
     storage_limit: String!
     delegate: String
     metadata: OperationContentsMetadataDelegation!
-    operation: OperationEntry!
+    operation: OperationEntryInfo!
 }
 
 type OperationContentsSeedNonceRevelation implements OperationContent {
@@ -246,7 +245,7 @@ type OperationContentsSeedNonceRevelation implements OperationContent {
     level: Long!
     nonce: String!
     metadata: OperationContentsMetadata!
-    operation: OperationEntry!
+    operation: OperationEntryInfo!
 }
 
 type OperationContentsOrigination implements OperationContent {
@@ -261,7 +260,7 @@ type OperationContentsOrigination implements OperationContent {
     delegate: String
     script: ScriptedContracts
     metadata: OperationContentsMetadataOrigination!
-    operation: OperationEntry!
+    operation: OperationEntryInfo!
 }
 
 type MichelsonV1ExpressionBase {
@@ -279,11 +278,15 @@ type MichelsonV1ExpressionExtended {
 union MichelsonV1Expression = MichelsonV1ExpressionBase | MichelsonV1ExpressionExtended
 
 type OperationEntry {
+    info: OperationEntryInfo!
+    contents: [OperationContent]
+}
+
+type OperationEntryInfo {
     protocol: String!
     chain_id: String!
     hash: String!
     branch: String!
-    contents: [OperationContent]
     signature: String
 }
 
@@ -445,28 +448,28 @@ type Block {
     header: BlockFullHeader!
     metadata: BlockMetadata!
     operations(hash: String): [[OperationEntry]]
-    # Returns activations from block. Results can be filtered by 
+    # Returns activations from block. Results can be filtered by
     # operation hash, or address (pkh).
     activations(hash: String, address: Address): [OperationContentsActivateAccount]!
-    # Returns ballots from block. Results can be filtered by 
+    # Returns ballots from block. Results can be filtered by
     # operation hash, source, proposal or vote (ballot).
     ballots(hash: String, source: Address, proposal: String, ballot: Ballot): [OperationContentsBallot]!
-    # Returns delegations from block. Results can be filtered by 
+    # Returns delegations from block. Results can be filtered by
     # operation hash, source, delegate or operation result status.
     delegations(hash: String, source: Address, delegate: Address, status: OperationResultStatus): [OperationContentsDelegation]!
-    # Returns double baking evidence from block. Results can be filtered by 
+    # Returns double baking evidence from block. Results can be filtered by
     # operation hash or delegate.
     double_baking_evidence(hash: String, delegate: Address): [OperationContentsDoubleBaking]!
-    # Returns double endorsement evidence from block. Results can be filtered by 
+    # Returns double endorsement evidence from block. Results can be filtered by
     # operation hash or delegate.
     double_endorsement_evidence(hash: String, delegate: Address): [OperationContentsDoubleEndorsement]!
-    # Returns endorsements from block. Results can be filtered by 
+    # Returns endorsements from block. Results can be filtered by
     # operation hash, or delegate.
     endorsements(hash: String, delegate: Address): [OperationContentsEndorsement]!
-    # Returns originations from block. Results can be filtered by 
+    # Returns originations from block. Results can be filtered by
     # operation hash, source, delegate, originated contract or operation result status.
     originations(hash: String, source: Address, delegate: Address, originated_contract: Address, status: OperationResultStatus): [OperationContentsOrigination]!
-    # Returns proposals from block. Results can be filtered by 
+    # Returns proposals from block. Results can be filtered by
     # operation hash, source or proposal hash.
     proposals(hash: String, source: Address, proposal: String): [OperationContentsProposal]!
     # Returns reveals from block. Results can be filtered by
