@@ -13,6 +13,7 @@ import { operationContentResolver } from './resolvers/operation-content-resolver
 import { blockQueryResolver } from './resolvers/queries/blocks/block-query-resolver';
 import { blocksQueryResolver } from './resolvers/queries/blocks/blocks-query-resolver';
 import { delegatesQueryResolver } from './resolvers/queries/delegates/delegates-query-resolver';
+import { operationResolver } from './resolvers/operation-resolver';
 
 const dateTimeResolver: IResolvers = {
     DateTime: GraphQLDateTime,
@@ -20,7 +21,7 @@ const dateTimeResolver: IResolvers = {
 
 const queries = merge(blockQueryResolver, blocksQueryResolver, delegatesQueryResolver);
 const typeResolvers = merge(dateTimeResolver, operationContentResolver, michelsonV1ExpressionResolver, internalOperationResultResolver, enumResolver);
-const schemaResolvers = merge(internalOperationResultTransactionResolver, blockResolver);
+const schemaResolvers = merge(internalOperationResultTransactionResolver, blockResolver, operationResolver);
 const resolvers = merge(queries, typeResolvers, schemaResolvers);
 
 export default resolvers;
