@@ -7,13 +7,10 @@ const tezosRpcService = container.resolve(TezosRpcService);
 export const blockQueryResolver = {
     Query: {
         async block(obj: any, args: { block: string }): Promise<Block> {
-            let block: Block;
             if (args.block) {
-                block = responseToBlock(await tezosRpcService.client.getBlock({ block: args.block }));
+                return responseToBlock(await tezosRpcService.client.getBlock({ block: args.block }));
             }
-            block = responseToBlock(await tezosRpcService.client.getBlock());
-
-            return block;
+            return responseToBlock(await tezosRpcService.client.getBlock());
         },
     },
 };
