@@ -4,13 +4,16 @@ import depthLimit from 'graphql-depth-limit';
 import { createServer } from 'http';
 import compression from 'compression';
 import cors from 'cors';
-import schema from './schema';
+
 import dotenv from 'dotenv';
 import 'reflect-metadata';
 import { ExpressContext } from 'apollo-server-express/dist/ApolloServer';
 
 dotenv.config();
 // TODO Check here that we have all mandatory configs in place from ENV
+
+// NOTE: this is here for a purpose (we need to call dotenv first)
+import schema from './schema';
 
 const app = express();
 const config: ApolloServerExpressConfig = {
