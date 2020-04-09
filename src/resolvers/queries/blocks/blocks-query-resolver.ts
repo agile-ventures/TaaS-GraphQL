@@ -8,28 +8,11 @@ import { convertResponse } from './block-utils';
 
 const tezosRpcService = container.resolve(TezosRpcService);
 
-function fetchBlock(block: string): Promise<BlockResponse> {
+function fetchBlock(block: string | null): Promise<BlockResponse> {
+    if (block == null) {
+        block = 'head';
+    }
     return tezosRpcService.client.getBlock({ block });
-}
-
-// let's save some calls by saving the fetched blocks
-async function getLevel(argument: string | null): Promise<[number, BlockResponse | null]> {
-    if (argument == null) {
-        var block = await fetchBlock('head');
-        return [block.metadata.level.level, block];
-    }
-
-    let parsed = Number(argument);
-    if (isNaN(parsed)) {
-        // try fetching hash or head
-        var block = await fetchBlock(argument);
-        return [block.metadata.level.level, block];
-    } else if (parsed < 0) {
-        // relative to head
-        var block = await fetchBlock('head');
-        return [block.metadata.level.level + parsed, null];
-    }
-    return [parsed, await fetchBlock(argument)];
 }
 
 export const blocksQueryResolver = {
@@ -51,21 +34,21 @@ export const blocksQueryResolver = {
             let firstBlock: BlockResponse | null;
             let lastBlock: BlockResponse | null;
             if (args.count == null) {
-                let toLevel: number;
-                [fromLevel, firstBlock] = await getLevel(args.from);
-                [toLevel, lastBlock] = await getLevel(args.to);
-                count = toLevel - fromLevel + 1;
+                firstBlock = await fetchBlock(args.from);
+                lastBlock = await fetchBlock(args.to);
+                fromLevel = firstBlock.header.level;
+                count = lastBlock.header.level - firstBlock.header.level + 1;
             } else {
                 if (args.from != null) {
-                    [fromLevel, firstBlock] = await getLevel(args.from);
+                    firstBlock = await fetchBlock(args.from);
                     lastBlock = null;
+                    fromLevel = firstBlock.header.level;
                     count = args.count;
                 } else {
-                    let toLevel: number;
-                    [toLevel, lastBlock] = await getLevel(args.to);
-                    fromLevel = Math.max(0, toLevel - args.count + 1);
+                    lastBlock = await fetchBlock(args.to);
                     firstBlock = null;
-                    count = toLevel - fromLevel + 1;
+                    fromLevel = Math.max(0, lastBlock.header.level - args.count + 1);
+                    count = lastBlock.header.level - fromLevel + 1;
                 }
             }
 
