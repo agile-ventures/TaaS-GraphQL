@@ -456,7 +456,7 @@ type Contract {
     entrypoint: Entrypoint
     delegate: String # - should we load the delegate with this address?
     manager_key: ManagerKey
-    storage: MichelsonV1Expression!
+    storage: MichelsonV1Expression
 }
 
 type Delegate {
