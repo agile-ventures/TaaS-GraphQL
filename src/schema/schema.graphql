@@ -458,7 +458,7 @@ type Contract {
     manager_key: ManagerKey
     schema: JSON
     script: ScriptedContracts
-    storage: MichelsonV1Expression!
+    storage: MichelsonV1Expression
     storage_decoded: JSON
 }
 

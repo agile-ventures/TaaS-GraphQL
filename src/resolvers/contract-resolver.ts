@@ -65,6 +65,9 @@ export const contractResolver = {
             var taqContract = await tezosService.toolkit.contract.at(contract.address);
             return await taqContract.bigMap(args.key);
         },
+        async delegate(contract: ContractResponse): Promise<DelegateResponse> {
+            return handleNotFound(() => tezosService.client.getDelegate(contract.address, { block: contract.blockHash }));
+        },
     },
 };
 
