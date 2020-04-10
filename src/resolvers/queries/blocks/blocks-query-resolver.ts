@@ -2,11 +2,11 @@ import { BlockResponse } from '@taquito/rpc';
 import { UserInputError } from 'apollo-server-express';
 import { container } from 'tsyringe';
 
-import { TezosRpcService } from '../../../services/tezos-rpc-service';
+import { TezosService } from '../../../services/tezos-service';
 import { Block } from '../../../types/types';
 import { convertResponse } from './block-utils';
 
-const tezosRpcService = container.resolve(TezosRpcService);
+const tezosRpcService = container.resolve(TezosService);
 
 function fetchBlock(block: string | null): Promise<BlockResponse> {
     if (block == null) {
