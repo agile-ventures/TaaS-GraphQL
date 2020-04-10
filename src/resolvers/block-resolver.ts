@@ -2,7 +2,7 @@ import { OperationResultStatusEnum, OpKind } from '@taquito/rpc';
 import { flatten } from 'lodash';
 import { container } from 'tsyringe';
 
-import { TezosRpcService } from '../services/tezos-rpc-service';
+import { TezosService } from '../services/tezos-service';
 import {
     BalanceUpdateKind,
     Ballot,
@@ -35,7 +35,7 @@ interface OperationArguments {
     status?: OperationResultStatusEnum;
 }
 
-const tezosRpcService = container.resolve(TezosRpcService);
+const tezosRpcService = container.resolve(TezosService);
 
 export const blockResolver = {
     Block: {
@@ -60,9 +60,8 @@ export const blockResolver = {
             const result = await tezosRpcService.client.getDelegates(args.address, { block: root.hash });
             return result;
         },
-        contract: async (root: Block, args: { address: string }): Promise<ContractResponse> => {
+        contract: async (root: Block, args: { address: string }, context: any): Promise<ContractResponse> => {
             const result = await tezosRpcService.client.getContract(args.address, { block: root.hash });
-
             return {
                 ...result,
                 blockHash: root.hash,

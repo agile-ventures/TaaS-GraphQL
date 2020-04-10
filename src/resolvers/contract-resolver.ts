@@ -1,10 +1,13 @@
+import { Schema } from '@taquito/michelson-encoder';
+import { ManagerKeyResponse as TaquitoManagerKeyResponse, ScriptResponse } from '@taquito/rpc';
+import { Contract } from '@taquito/taquito/dist/types/contract/contract';
+import { ApolloError } from 'apollo-server-express';
 import { container } from 'tsyringe';
 
-import { TezosRpcService } from '../services/tezos-rpc-service';
-import { ContractEntrypoint, ContractResponse, EntrypointPath, ManagerKeyResponse, StorageResponse, DelegateResponse } from '../types/types';
-import { ManagerKeyResponse as TaquitoManagerKeyResponse, EntrypointsResponse } from '@taquito/rpc';
+import { TezosService } from '../services/tezos-service';
+import { ContractEntrypoint, ContractResponse, DelegateResponse, EntrypointPath, ManagerKeyResponse, StorageResponse } from '../types/types';
 
-const tezosRpcService = container.resolve(TezosRpcService);
+const tezosService = container.resolve(TezosService) as TezosService;
 
 async function handleNotFound<T>(run: () => Promise<T>): Promise<T | null> {
     try {
@@ -20,7 +23,7 @@ async function handleNotFound<T>(run: () => Promise<T>): Promise<T | null> {
 export const contractResolver = {
     Contract: {
         async entrypoint(contract: ContractResponse): Promise<ContractEntrypoint | null> {
-            const result = await handleNotFound(() => tezosRpcService.client.getEntrypoints(contract.address, { block: contract.blockHash }));
+            const result = await handleNotFound(() => tezosService.client.getEntrypoints(contract.address, { block: contract.blockHash }));
             if (result != null) {
                 return {
                     ...result,
@@ -35,17 +38,32 @@ export const contractResolver = {
             return null;
         },
         async manager_key(contract: ContractResponse): Promise<ManagerKeyResponse | null> {
-            const result = await handleNotFound(() => tezosRpcService.client.getManagerKey(contract.address, { block: contract.blockHash }));
+            const result = await handleNotFound(() => tezosService.client.getManagerKey(contract.address, { block: contract.blockHash }));
             if (result != null) {
                 return managerKeyIsString(result) ? { key: result } : { key: result.key, invalid: true };
             }
             return null;
         },
-        storage(contract: ContractResponse): Promise<StorageResponse | null> {
-            return handleNotFound(() => tezosRpcService.client.getStorage(contract.address, { block: contract.blockHash }));
+        async storage(contract: ContractResponse): Promise<StorageResponse | null> {
+            const result = handleNotFound(() => tezosService.client.getStorage(contract.address, { block: contract.blockHash }));
+            return result;
         },
-        delegate(contract: ContractResponse): Promise<DelegateResponse> {
-            return handleNotFound(() => tezosRpcService.client.getDelegate(contract.address, { block: contract.blockHash }));
+        async storage_decoded(contract: ContractResponse): Promise<any> {
+            const contractSchema = Schema.fromRPCResponse({ script: contract.script as ScriptResponse });
+            return await tezosService.toolkit.contract.getStorage(contract.address, contractSchema);
+        },
+        schema(contract: ContractResponse): any {
+            var schema = Schema.fromRPCResponse({ script: contract.script as ScriptResponse });
+            return schema.ExtractSchema();
+        },
+        async big_map_value(contract: ContractResponse, args: { key: string }): Promise<any> {
+            if (!args?.key) {
+                throw new ApolloError('Parameter key is missing!');
+            }
+            // TODO why do we need to load this again. can we call the constructor on this with the contract object?
+            // constructor(address: string, script: ScriptResponse, provider: ContractProvider, entrypoints: EntrypointsResponse);
+            var taqContract = await tezosService.toolkit.contract.at(contract.address);
+            return await taqContract.bigMap(args.key);
         },
     },
 };

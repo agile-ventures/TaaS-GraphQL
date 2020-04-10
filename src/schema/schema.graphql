@@ -451,12 +451,15 @@ type ManagerKey {
 
 type Contract {
     balance: Long!
-    script: ScriptedContracts
+    big_map_value(key: String!): JSON
     counter: String
+    delegate: String
     entrypoint: Entrypoint
-    delegate: String # - should we load the delegate with this address?
     manager_key: ManagerKey
-    storage: MichelsonV1Expression
+    schema: JSON
+    script: ScriptedContracts
+    storage: MichelsonV1Expression!
+    storage_decoded: JSON
 }
 
 type Delegate {
