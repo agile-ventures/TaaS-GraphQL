@@ -1,9 +1,7 @@
 {
     "typescript.tsdk": "node_modules\\typescript\\lib",
     "editor.formatOnSave": true,
-    "prettier.printWidth": 160,
     "[typescript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "prettier.tabWidth": 4
+    }
 }
