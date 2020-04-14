@@ -211,7 +211,8 @@ type Contract {
     storage: MichelsonExpression
     storage_decoded: JSON
     schema: JSON
-    big_map_value(key: String!): JSON
+    big_map_value(key: String!, keyType: String!, bigMapId: Int): JSON
+    big_map_value_decoded(key: String!): JSON
 }
 
 type ManagerKey {

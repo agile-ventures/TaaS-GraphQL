@@ -1,10 +1,13 @@
 import { Schema } from '@taquito/michelson-encoder';
-import { ManagerKeyResponse as TaquitoManagerKeyResponse, ScriptResponse } from '@taquito/rpc';
+import { b58decode, b58cencode, hex2buf } from '@taquito/utils';
+import { ManagerKeyResponse as TaquitoManagerKeyResponse, ScriptResponse, PackDataParams } from '@taquito/rpc';
 import { ApolloError } from 'apollo-server-express';
 import { container } from 'tsyringe';
 
 import { TezosService } from '../services/tezos-service';
 import { ContractEntrypoint, Contract, EntrypointPath, ManagerKey, MichelsonExpression } from '../types/types';
+
+const blake = require('blakejs');
 
 const tezosService = container.resolve(TezosService) as TezosService;
 
@@ -55,18 +58,69 @@ export const contractResolver = {
             var schema = Schema.fromRPCResponse({ script: contract.script as ScriptResponse });
             return schema.ExtractSchema();
         },
-        async big_map_value(contract: Contract, args: { key: string }): Promise<any> {
-            if (!args?.key) {
-                throw new ApolloError('Parameter key is missing!');
+        async big_map_value(contract: Contract, args: { key: any; keyType?: any; bigMapId?: number }): Promise<any> {
+            if (args.bigMapId) {
+                // query using RPC with map ID
+                if (!args.keyType) {
+                    throw new ApolloError('Parameter key_type has to be present when fetching big map of given ID');
+                }
+
+                const encodedExpr = await getBigMapKeyHash(args);
+                return await handleNotFound(() => tezosService.client.getBigMapExpr(args.bigMapId!.toString(), encodedExpr, { block: contract.blockHash }));
+            } else {
+                // query using deprecated big map RPC
+                const key = { key: { string: args.key }, type: { prim: 'key_hash' } };
+                return handleNotFound(() => tezosService.client.getBigMapKey(contract.address, key, { block: contract.blockHash }));
             }
-            var taqContract = await tezosService.toolkit.contract.at(contract.address);
-            return await taqContract.bigMap(args.key);
+        },
+        async big_map_value_decoded(contract: Contract, args: { key: any }): Promise<any> {
+            const contractSchema = Schema.fromRPCResponse({ script: contract.script as ScriptResponse });
+            const encodedKey = contractSchema.EncodeBigMapKey(args.key);
+
+            // tslint:disable-next-line: deprecation
+            const val = await handleNotFound(() => tezosService.client.getBigMapKey(contract.address, encodedKey));
+            if (val != null) {
+                return contractSchema.ExecuteOnBigMapValue(val);
+            }
+            return null;
         },
         delegate(contract: Contract): Promise<string | null> {
             return handleNotFound(() => tezosService.client.getDelegate(contract.address, { block: contract.blockHash }));
         },
     },
 };
+
+async function getBigMapKeyHash(args: { key: any; keyType?: any; bigMapId?: number | undefined }): Promise<string> {
+    // pack via RPC
+    let params: PackDataParams;
+    switch (args.keyType) {
+        case 'address':
+            params = { data: { bytes: b58decode(args.key) }, type: { prim: 'bytes' } };
+            break;
+        case 'bool':
+            params = { data: { prim: args.key ? 'True' : 'False' }, type: { prim: 'bool' } };
+            break;
+        case 'bytes':
+            params = { data: { bytes: args.key }, type: { prim: 'bytes' } };
+            break;
+        case 'int':
+        case 'mutez':
+        case 'nat':
+            params = { data: { int: args.key }, type: { prim: args.keyType } };
+            break;
+        case 'string':
+        case 'key_hash':
+            params = { data: { string: args.key }, type: { prim: args.keyType } };
+            break;
+        default:
+            throw new ApolloError(`Unsupported key type ${args.keyType}`);
+    }
+    const { packed } = await tezosService.client.packData(params);
+
+    // apply blake2, add prefix and encode to b58
+    const blakeHash = blake.blake2b(hex2buf(packed), null, 32);
+    return b58cencode(blakeHash, new Uint8Array([13, 44, 64, 27]));
+}
 
 function managerKeyIsString(value: TaquitoManagerKeyResponse): value is string {
     return typeof value === 'string';
