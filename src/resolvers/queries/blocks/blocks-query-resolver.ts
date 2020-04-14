@@ -8,10 +8,7 @@ import { convertResponse } from './block-utils';
 
 const tezosRpcService = container.resolve(TezosService);
 
-function fetchBlock(block: string | null): Promise<BlockResponse> {
-    if (block == null) {
-        block = 'head';
-    }
+function fetchBlock(block: string): Promise<BlockResponse> {
     return tezosRpcService.client.getBlock({ block });
 }
 
@@ -34,18 +31,18 @@ export const blocksQueryResolver = {
             let firstBlock: BlockResponse | null;
             let lastBlock: BlockResponse | null;
             if (args.count == null) {
-                firstBlock = await fetchBlock(args.from);
-                lastBlock = await fetchBlock(args.to);
+                firstBlock = await fetchBlock(args.from || '0');
+                lastBlock = await fetchBlock(args.to || 'head');
                 fromLevel = firstBlock.header.level;
                 count = lastBlock.header.level - firstBlock.header.level + 1;
             } else {
                 if (args.from != null) {
-                    firstBlock = await fetchBlock(args.from);
+                    firstBlock = await fetchBlock(args.from || '0');
                     lastBlock = null;
                     fromLevel = firstBlock.header.level;
                     count = args.count;
                 } else {
-                    lastBlock = await fetchBlock(args.to);
+                    lastBlock = await fetchBlock(args.to || 'head');
                     firstBlock = null;
                     fromLevel = Math.max(0, lastBlock.header.level - args.count + 1);
                     count = lastBlock.header.level - fromLevel + 1;
