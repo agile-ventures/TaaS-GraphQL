@@ -43,4 +43,15 @@ export const enumResolver = {
         FAILED: 'failed',
         SKIPPED: 'skipped',
     },
+
+    BigMapKeyType: {
+        STRING: 'string',
+        NAT: 'nat',
+        INT: 'int',
+        BYTES: 'bytes',
+        BOOL: 'bool',
+        MUTEZ: 'mutez',
+        ADDRESS: 'address',
+        KEY_HASH: 'key_hash',
+    },
 };

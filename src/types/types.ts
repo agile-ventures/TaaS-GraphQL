@@ -358,3 +358,5 @@ export interface OperationError {
     kind: string;
     id: string;
 }
+
+export type BigMapKeyType = 'string' | 'nat' | 'int' | 'bytes' | 'bool' | 'mutez' | 'address' | 'key_hash';
