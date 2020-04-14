@@ -211,10 +211,22 @@ type Contract {
     storage: MichelsonExpression
     storage_decoded: JSON
     schema: JSON
-    big_map_value(key: String!, keyType: BigMapKeyType!, bigMapId: Int): JSON
+
+    """
+    Returns the value stored for a given key in a big map owned by this contract. If a map ID is given, the keyType argument is also required.
+    """
+    big_map_value(key: String!, keyType: BigMapKeyType, bigMapId: Int): MichelsonExpression
+
+    """
+    Returns the decoded value stored for a given key in this contract's big map. Note that this is only supported for the contracts originated
+    with the one-big_map-per-contract scheme. Babylon protocol introduced multiple bigmaps per contract, which cannot be accessed using this field.
+    """
     big_map_value_decoded(key: String!): JSON
 }
 
+"""
+One of the currently supported key types used for fetching big_map values.
+"""
 enum BigMapKeyType {
     STRING
     NAT
