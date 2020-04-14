@@ -5,7 +5,7 @@ import { ApolloError } from 'apollo-server-express';
 import { container } from 'tsyringe';
 
 import { TezosService } from '../services/tezos-service';
-import { ContractEntrypoint, Contract, EntrypointPath, ManagerKey, MichelsonExpression } from '../types/types';
+import { ContractEntrypoint, Contract, EntrypointPath, ManagerKey, MichelsonExpression, BigMapKeyType } from '../types/types';
 
 const blake = require('blakejs');
 
@@ -58,7 +58,7 @@ export const contractResolver = {
             var schema = Schema.fromRPCResponse({ script: contract.script as ScriptResponse });
             return schema.ExtractSchema();
         },
-        async big_map_value(contract: Contract, args: { key: any; keyType?: any; bigMapId?: number }): Promise<any> {
+        async big_map_value(contract: Contract, args: { key: any; keyType?: BigMapKeyType; bigMapId?: number }): Promise<any> {
             if (args.bigMapId) {
                 // query using RPC with map ID
                 if (!args.keyType) {
@@ -69,8 +69,9 @@ export const contractResolver = {
                 return await handleNotFound(() => tezosService.client.getBigMapExpr(args.bigMapId!.toString(), encodedExpr, { block: contract.blockHash }));
             } else {
                 // query using deprecated big map RPC
-                const key = { key: { string: args.key }, type: { prim: 'key_hash' } };
-                return handleNotFound(() => tezosService.client.getBigMapKey(contract.address, key, { block: contract.blockHash }));
+                const contractSchema = Schema.fromRPCResponse({ script: contract.script as ScriptResponse });
+                const encodedKey = contractSchema.EncodeBigMapKey(args.key);
+                return handleNotFound(() => tezosService.client.getBigMapKey(contract.address, encodedKey, { block: contract.blockHash }));
             }
         },
         async big_map_value_decoded(contract: Contract, args: { key: any }): Promise<any> {
