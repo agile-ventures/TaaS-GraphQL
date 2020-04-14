@@ -57,17 +57,19 @@ export const blockResolver = {
             }
             return root.operations.map(opsArray => opsArray.map(extendOperation));
         },
-        delegate: async (root: Block, args: { address: string }): Promise<Delegate> => {
-            const result = await tezosRpcService.client.getDelegates(args.address, { block: root.hash });
-            return result;
+        delegate: (root: Block, args: { address: string }): Promise<Delegate | null> => {
+            return TezosService.handleNotFound(() => tezosRpcService.client.getDelegates(args.address, { block: root.hash }));
         },
-        contract: async (root: Block, args: { address: string }): Promise<Contract> => {
-            const result = await tezosRpcService.client.getContract(args.address, { block: root.hash });
-            return {
-                ...result,
-                blockHash: root.hash,
-                address: args.address,
-            };
+        contract: async (root: Block, args: { address: string }): Promise<Contract | null> => {
+            const result = await TezosService.handleNotFound(() => tezosRpcService.client.getContract(args.address, { block: root.hash }));
+            if (result != null) {
+                return {
+                    ...result,
+                    blockHash: root.hash,
+                    address: args.address,
+                };
+            }
+            return null;
         },
     },
 };
