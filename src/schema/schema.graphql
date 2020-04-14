@@ -205,7 +205,7 @@ type Contract {
     balance: BigNumber!
     script: ScriptedContracts
     counter: String
-    entrypoint: Entrypoint
+    entrypoints: Entrypoints
     delegate: String
     manager_key: ManagerKey
     storage: MichelsonExpression
@@ -219,7 +219,7 @@ type ManagerKey {
     invalid: Boolean
 }
 
-type Entrypoint {
+type Entrypoints {
     entrypoints: JSON!
     unreachable: EntrypointUnreachable
 }

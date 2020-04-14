@@ -4,7 +4,7 @@ import { ApolloError } from 'apollo-server-express';
 import { container } from 'tsyringe';
 
 import { TezosService } from '../services/tezos-service';
-import { ContractEntrypoint, Contract, EntrypointPath, ManagerKey, MichelsonExpression } from '../types/types';
+import { Entrypoints, Contract, EntrypointPath, ManagerKey, MichelsonExpression } from '../types/types';
 
 const tezosService = container.resolve(TezosService) as TezosService;
 
@@ -21,7 +21,7 @@ async function handleNotFound<T>(run: () => Promise<T>): Promise<T | null> {
 
 export const contractResolver = {
     Contract: {
-        async entrypoint(contract: Contract): Promise<ContractEntrypoint | null> {
+        async entrypoints(contract: Contract): Promise<Entrypoints | null> {
             const result = await handleNotFound(() => tezosService.client.getEntrypoints(contract.address, { block: contract.blockHash }));
             if (result != null) {
                 return {
