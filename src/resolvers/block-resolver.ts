@@ -5,27 +5,27 @@ import { container } from 'tsyringe';
 import { TezosService } from '../services/tezos-service';
 import {
     BalanceUpdateKind,
-    Ballot,
+    BallotVote,
     Block,
     OperationContents,
-    OperationContentsActivateAccount,
-    OperationContentsBallot,
-    OperationContentsDelegation,
-    OperationContentsDoubleBaking,
-    OperationContentsDoubleEndorsement,
-    OperationContentsEndorsement,
-    OperationContentsOrigination,
-    OperationContentsProposals,
-    OperationContentsReveal,
-    OperationContentsTransaction,
+    ActivateAccount,
+    Ballot,
+    Delegation,
+    DoubleBakingEvidence,
+    DoubleEndorsementEvidence,
+    Endorsement,
+    Origination,
+    Proposals,
+    Reveal,
+    Transaction,
     OperationEntry,
-    ContractResponse,
-    DelegatesResponse,
+    Contract,
+    Delegate,
 } from '../types/types';
 
 interface OperationArguments {
     address?: string;
-    ballot?: Ballot;
+    ballot?: BallotVote;
     delegate?: string;
     destination?: string;
     hash?: string;
@@ -43,7 +43,8 @@ export const blockResolver = {
         ballots: (root: Block, args: OperationArguments) => filterBallots(root.operations[1], OpKind.BALLOT, args),
         delegations: (root: Block, args: OperationArguments) => filterDelegations(root.operations[3], OpKind.DELEGATION, args),
         double_baking_evidence: (root: Block, args: OperationArguments) => filterDoubleBakings(root.operations[2], OpKind.DOUBLE_BAKING_EVIDENCE, args),
-        double_endorsement_evidence: (root: Block, args: OperationArguments) => filterDoubleEndorsements(root.operations[2], OpKind.DOUBLE_ENDORSEMENT_EVIDENCE, args),
+        double_endorsement_evidence: (root: Block, args: OperationArguments) =>
+            filterDoubleEndorsements(root.operations[2], OpKind.DOUBLE_ENDORSEMENT_EVIDENCE, args),
         endorsements: (root: Block, args: OperationArguments) => filterEndorsements(root.operations[0], OpKind.ENDORSEMENT, args),
         originations: (root: Block, args: OperationArguments) => filterOriginations(root.operations[3], OpKind.ORIGINATION, args),
         proposals: (root: Block, args: OperationArguments) => filterProposals(root.operations[1], OpKind.PROPOSALS, args),
@@ -56,11 +57,11 @@ export const blockResolver = {
             }
             return root.operations.map(opsArray => opsArray.map(extendOperation));
         },
-        delegate: async (root: Block, args: { address: string }): Promise<DelegatesResponse> => {
+        delegate: async (root: Block, args: { address: string }): Promise<Delegate> => {
             const result = await tezosRpcService.client.getDelegates(args.address, { block: root.hash });
             return result;
         },
-        contract: async (root: Block, args: { address: string }, context: any): Promise<ContractResponse> => {
+        contract: async (root: Block, args: { address: string }): Promise<Contract> => {
             const result = await tezosRpcService.client.getContract(args.address, { block: root.hash });
             return {
                 ...result,
@@ -85,7 +86,7 @@ function filterOperations(operations: OperationEntry[], opKind: OpKind, args: Op
 function filterActivations(operations: OperationEntry[], opKind: OpKind, args: OperationArguments): OperationContents[] {
     let filteredOps = filterOperations(operations, opKind, args);
     if (args?.address) {
-        filteredOps = filteredOps.filter(o => (<OperationContentsActivateAccount>o).pkh == args.address);
+        filteredOps = filteredOps.filter(o => (<ActivateAccount>o).pkh == args.address);
     }
     return filteredOps;
 }
@@ -93,13 +94,13 @@ function filterActivations(operations: OperationEntry[], opKind: OpKind, args: O
 function filterBallots(operations: OperationEntry[], opKind: OpKind, args: OperationArguments): OperationContents[] {
     let filteredOps = filterOperations(operations, opKind, args);
     if (args?.source) {
-        filteredOps = filteredOps.filter(o => (<OperationContentsBallot>o).source == args.source);
+        filteredOps = filteredOps.filter(o => (<Ballot>o).source == args.source);
     }
     if (args?.proposal) {
-        filteredOps = filteredOps.filter(o => (<OperationContentsBallot>o).proposal == args.proposal);
+        filteredOps = filteredOps.filter(o => (<Ballot>o).proposal == args.proposal);
     }
     if (args?.ballot) {
-        filteredOps = filteredOps.filter(o => (<OperationContentsBallot>o).ballot == args.ballot);
+        filteredOps = filteredOps.filter(o => (<Ballot>o).ballot == args.ballot);
     }
     return filteredOps;
 }
@@ -107,13 +108,13 @@ function filterBallots(operations: OperationEntry[], opKind: OpKind, args: Opera
 function filterDelegations(operations: OperationEntry[], opKind: OpKind, args: OperationArguments): OperationContents[] {
     let filteredOps = filterOperations(operations, opKind, args);
     if (args?.source) {
-        filteredOps = filteredOps.filter(o => (<OperationContentsDelegation>o).source == args.source);
+        filteredOps = filteredOps.filter(o => (<Delegation>o).source == args.source);
     }
     if (args?.delegate) {
-        filteredOps = filteredOps.filter(o => (<OperationContentsDelegation>o).delegate == args.delegate);
+        filteredOps = filteredOps.filter(o => (<Delegation>o).delegate == args.delegate);
     }
     if (args?.status) {
-        filteredOps = filteredOps.filter(o => (<OperationContentsDelegation>o).metadata.operation_result.status == args.status);
+        filteredOps = filteredOps.filter(o => (<Delegation>o).metadata.operation_result.status == args.status);
     }
     return filteredOps;
 }
@@ -122,7 +123,7 @@ function filterDoubleBakings(operations: OperationEntry[], opKind: OpKind, args:
     let filteredOps = filterOperations(operations, opKind, args);
     if (args?.delegate) {
         filteredOps = filteredOps.filter(
-            o => (<OperationContentsDoubleBaking>o).metadata.balance_updates.find(bu => bu.kind == BalanceUpdateKind.FREEZER)?.delegate == args.delegate
+            o => (<DoubleBakingEvidence>o).metadata.balance_updates.find(bu => bu.kind == BalanceUpdateKind.FREEZER)?.delegate == args.delegate
         );
     }
     return filteredOps;
@@ -132,7 +133,7 @@ function filterDoubleEndorsements(operations: OperationEntry[], opKind: OpKind, 
     let filteredOps = filterOperations(operations, opKind, args);
     if (args?.delegate) {
         filteredOps = filteredOps.filter(
-            o => (<OperationContentsDoubleEndorsement>o).metadata.balance_updates.find(bu => bu.kind == BalanceUpdateKind.FREEZER)?.delegate == args.delegate
+            o => (<DoubleEndorsementEvidence>o).metadata.balance_updates.find(bu => bu.kind == BalanceUpdateKind.FREEZER)?.delegate == args.delegate
         );
     }
     return filteredOps;
@@ -141,7 +142,7 @@ function filterDoubleEndorsements(operations: OperationEntry[], opKind: OpKind, 
 function filterEndorsements(operations: OperationEntry[], opKind: OpKind, args: OperationArguments): OperationContents[] {
     let filteredOps = filterOperations(operations, opKind, args);
     if (args?.delegate) {
-        filteredOps = filteredOps.filter(o => (<OperationContentsEndorsement>o).metadata.delegate == args.delegate);
+        filteredOps = filteredOps.filter(o => (<Endorsement>o).metadata.delegate == args.delegate);
     }
     return filteredOps;
 }
@@ -149,16 +150,16 @@ function filterEndorsements(operations: OperationEntry[], opKind: OpKind, args: 
 function filterOriginations(operations: OperationEntry[], opKind: OpKind, args: OperationArguments): OperationContents[] {
     let filteredOps = filterOperations(operations, opKind, args);
     if (args?.source) {
-        filteredOps = filteredOps.filter(o => (<OperationContentsOrigination>o).source == args.source);
+        filteredOps = filteredOps.filter(o => (<Origination>o).source == args.source);
     }
     if (args?.delegate) {
-        filteredOps = filteredOps.filter(o => (<OperationContentsOrigination>o).delegate == args.delegate);
+        filteredOps = filteredOps.filter(o => (<Origination>o).delegate == args.delegate);
     }
     if (args?.originated_contract) {
-        filteredOps = filteredOps.filter(o => (<OperationContentsOrigination>o).metadata.operation_result.originated_contracts?.some(oc => oc == args.originated_contract));
+        filteredOps = filteredOps.filter(o => (<Origination>o).metadata.operation_result.originated_contracts?.some(oc => oc == args.originated_contract));
     }
     if (args?.status) {
-        filteredOps = filteredOps.filter(o => (<OperationContentsOrigination>o).metadata.operation_result.status == args.status);
+        filteredOps = filteredOps.filter(o => (<Origination>o).metadata.operation_result.status == args.status);
     }
     return filteredOps;
 }
@@ -166,10 +167,10 @@ function filterOriginations(operations: OperationEntry[], opKind: OpKind, args: 
 function filterProposals(operations: OperationEntry[], opKind: OpKind, args: OperationArguments): OperationContents[] {
     let filteredOps = filterOperations(operations, opKind, args);
     if (args?.source) {
-        filteredOps = filteredOps.filter(o => (<OperationContentsProposals>o).source == args.source);
+        filteredOps = filteredOps.filter(o => (<Proposals>o).source == args.source);
     }
     if (args?.proposal) {
-        filteredOps = filteredOps.filter(o => (<OperationContentsProposals>o).proposals?.some(p => p == args.proposal));
+        filteredOps = filteredOps.filter(o => (<Proposals>o).proposals?.some(p => p == args.proposal));
     }
     return filteredOps;
 }
@@ -177,10 +178,10 @@ function filterProposals(operations: OperationEntry[], opKind: OpKind, args: Ope
 function filterReveals(operations: OperationEntry[], opKind: OpKind, args: OperationArguments): OperationContents[] {
     let filteredOps = filterOperations(operations, opKind, args);
     if (args?.source) {
-        filteredOps = filteredOps.filter(o => (<OperationContentsReveal>o).source == args.source);
+        filteredOps = filteredOps.filter(o => (<Reveal>o).source == args.source);
     }
     if (args?.status) {
-        filteredOps = filteredOps.filter(o => (<OperationContentsReveal>o).metadata.operation_result.status == args.status);
+        filteredOps = filteredOps.filter(o => (<Reveal>o).metadata.operation_result.status == args.status);
     }
     return filteredOps;
 }
@@ -188,13 +189,13 @@ function filterReveals(operations: OperationEntry[], opKind: OpKind, args: Opera
 function filterTransactions(operations: OperationEntry[], opKind: OpKind, args: OperationArguments): OperationContents[] {
     let filteredOps = filterOperations(operations, opKind, args);
     if (args?.source) {
-        filteredOps = filteredOps.filter(o => (<OperationContentsTransaction>o).source == args.source);
+        filteredOps = filteredOps.filter(o => (<Transaction>o).source == args.source);
     }
     if (args?.destination) {
-        filteredOps = filteredOps.filter(o => (<OperationContentsTransaction>o).destination == args.destination);
+        filteredOps = filteredOps.filter(o => (<Transaction>o).destination == args.destination);
     }
     if (args?.status) {
-        filteredOps = filteredOps.filter(o => (<OperationContentsTransaction>o).metadata.operation_result.status == args.status);
+        filteredOps = filteredOps.filter(o => (<Transaction>o).metadata.operation_result.status == args.status);
     }
     return filteredOps;
 }

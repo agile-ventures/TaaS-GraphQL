@@ -1,11 +1,10 @@
 import { Schema } from '@taquito/michelson-encoder';
 import { ManagerKeyResponse as TaquitoManagerKeyResponse, ScriptResponse } from '@taquito/rpc';
-import { Contract } from '@taquito/taquito/dist/types/contract/contract';
 import { ApolloError } from 'apollo-server-express';
 import { container } from 'tsyringe';
 
 import { TezosService } from '../services/tezos-service';
-import { ContractEntrypoint, ContractResponse, DelegateResponse, EntrypointPath, ManagerKeyResponse, StorageResponse } from '../types/types';
+import { ContractEntrypoint, Contract, EntrypointPath, ManagerKey, MichelsonExpression } from '../types/types';
 
 const tezosService = container.resolve(TezosService) as TezosService;
 
@@ -22,7 +21,7 @@ async function handleNotFound<T>(run: () => Promise<T>): Promise<T | null> {
 
 export const contractResolver = {
     Contract: {
-        async entrypoint(contract: ContractResponse): Promise<ContractEntrypoint | null> {
+        async entrypoint(contract: Contract): Promise<ContractEntrypoint | null> {
             const result = await handleNotFound(() => tezosService.client.getEntrypoints(contract.address, { block: contract.blockHash }));
             if (result != null) {
                 return {
@@ -37,35 +36,33 @@ export const contractResolver = {
             }
             return null;
         },
-        async manager_key(contract: ContractResponse): Promise<ManagerKeyResponse | null> {
+        async manager_key(contract: Contract): Promise<ManagerKey | null> {
             const result = await handleNotFound(() => tezosService.client.getManagerKey(contract.address, { block: contract.blockHash }));
             if (result != null) {
                 return managerKeyIsString(result) ? { key: result } : { key: result.key, invalid: true };
             }
             return null;
         },
-        async storage(contract: ContractResponse): Promise<StorageResponse | null> {
-            const result = handleNotFound(() => tezosService.client.getStorage(contract.address, { block: contract.blockHash }));
-            return result;
+        storage(contract: Contract): Promise<MichelsonExpression | null> {
+            return handleNotFound(() => tezosService.client.getStorage(contract.address, { block: contract.blockHash }));
         },
-        async storage_decoded(contract: ContractResponse): Promise<any> {
+        async storage_decoded(contract: Contract): Promise<any> {
             const contractSchema = Schema.fromRPCResponse({ script: contract.script as ScriptResponse });
-            return await tezosService.toolkit.contract.getStorage(contract.address, contractSchema);
+            let storage = await tezosService.client.getStorage(contract.address, { block: contract.blockHash });
+            return contractSchema.Execute(storage);
         },
-        schema(contract: ContractResponse): any {
+        schema(contract: Contract): any {
             var schema = Schema.fromRPCResponse({ script: contract.script as ScriptResponse });
             return schema.ExtractSchema();
         },
-        async big_map_value(contract: ContractResponse, args: { key: string }): Promise<any> {
+        async big_map_value(contract: Contract, args: { key: string }): Promise<any> {
             if (!args?.key) {
                 throw new ApolloError('Parameter key is missing!');
             }
-            // TODO why do we need to load this again. can we call the constructor on this with the contract object?
-            // constructor(address: string, script: ScriptResponse, provider: ContractProvider, entrypoints: EntrypointsResponse);
             var taqContract = await tezosService.toolkit.contract.at(contract.address);
             return await taqContract.bigMap(args.key);
         },
-        async delegate(contract: ContractResponse): Promise<DelegateResponse> {
+        delegate(contract: Contract): Promise<string | null> {
             return handleNotFound(() => tezosService.client.getDelegate(contract.address, { block: contract.blockHash }));
         },
     },
