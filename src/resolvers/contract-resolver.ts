@@ -1,14 +1,13 @@
 import { Schema } from '@taquito/michelson-encoder';
-import { b58decode, b58cencode, hex2buf } from '@taquito/utils';
-import { ManagerKeyResponse as TaquitoManagerKeyResponse, ScriptResponse, PackDataParams } from '@taquito/rpc';
+import { ManagerKeyResponse as TaquitoManagerKeyResponse, PackDataParams, ScriptResponse } from '@taquito/rpc';
+import { b58cencode, b58decode, hex2buf } from '@taquito/utils';
 import { ApolloError } from 'apollo-server-express';
 import { container } from 'tsyringe';
 
 import { TezosService } from '../services/tezos-service';
-import { ContractEntrypoint, Contract, EntrypointPath, ManagerKey, MichelsonExpression, BigMapKeyType } from '../types/types';
+import { BigMapKeyType, Contract, EntrypointPath, Entrypoints, ManagerKey, MichelsonExpression } from '../types/types';
 
 const blake = require('blakejs');
-
 const tezosService = container.resolve(TezosService) as TezosService;
 
 async function handleNotFound<T>(run: () => Promise<T>): Promise<T | null> {
@@ -24,7 +23,7 @@ async function handleNotFound<T>(run: () => Promise<T>): Promise<T | null> {
 
 export const contractResolver = {
     Contract: {
-        async entrypoint(contract: Contract): Promise<ContractEntrypoint | null> {
+        async entrypoints(contract: Contract): Promise<Entrypoints | null> {
             const result = await handleNotFound(() => tezosService.client.getEntrypoints(contract.address, { block: contract.blockHash }));
             if (result != null) {
                 return {

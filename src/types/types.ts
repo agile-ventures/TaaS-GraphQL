@@ -98,7 +98,7 @@ export interface ManagerKey {
     invalid?: boolean;
 }
 
-export type ContractEntrypoint = {
+export type Entrypoints = {
     entrypoints: { [key: string]: Object };
     unreachable?: { path: EntrypointPath[] };
 };

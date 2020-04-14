@@ -7,13 +7,15 @@ import cors from 'cors';
 
 import dotenv from 'dotenv';
 import 'reflect-metadata';
-import { ExpressContext } from 'apollo-server-express/dist/ApolloServer';
+import { ExpressContext, ServerRegistration } from 'apollo-server-express/dist/ApolloServer';
 
 dotenv.config();
 // TODO Check here that we have all mandatory configs in place from ENV
 
 // NOTE: this is here for a purpose (we need to call dotenv first)
 import schema from './schema';
+import { container } from 'tsyringe';
+import { TezosService } from './services/tezos-service';
 
 const app = express();
 const config: ApolloServerExpressConfig = {
@@ -37,10 +39,18 @@ if (process.env.ENABLE_API_KEY === 'true' && process.env.API_KEY) {
     };
 }
 
+const middlewareConfig = { app, path: '/graphql' } as ServerRegistration;
+if (process.env.ENABLE_TEZOS_NODE_HEALTHCHECK === 'true') {
+    const tezosService = container.resolve(TezosService) as TezosService;
+    middlewareConfig.onHealthCheck = () => {
+        return tezosService.client.getConstants();
+    };
+}
+
 const server = new ApolloServer(config);
 app.use('*', cors());
 app.use(compression());
-server.applyMiddleware({ app, path: '/graphql' });
+server.applyMiddleware(middlewareConfig);
 
 const httpServer = createServer(app);
 httpServer.listen({ host: process.env.HOST, port: process.env.PORT }, (): void =>
