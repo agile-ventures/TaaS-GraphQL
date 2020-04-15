@@ -32,7 +32,7 @@ type Query {
     Block fetches a Tezos block by number, hash or relative pointer (head~n).
     If neither is supplied, the most recent known block (head) is returned.
     """
-    block(block: String): Block!
+    block(block: String): Block
 
     """
     Blocks returns all blocks in a given interval, but maximum of <count> elements.
