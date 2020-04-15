@@ -64,6 +64,11 @@ type Block {
     delegate(address: Address): Delegate
 
     """
+    Returns the constants
+    """
+    constants: Constants
+
+    """
     Returns the contract with the given address, or null
     """
     contract(address: Address): Contract
@@ -208,6 +213,29 @@ type Delegate {
     delegated_balance: BigNumber!
     deactivated: Boolean!
     grace_period: Int!
+    """
+    Returns baking rights for a delegate or null. Results can be filtered by max_priority, level or cycle. If max_priority parameter is empty, server will default to the ENV value TEZOS_BAKING_RIGHTS_MAX_PRIORITY.
+    """
+    baking_rights(max_priority: Int, level: [Int], cycle: [Int]): [BakingRight]
+
+    """
+    Returns endorsing rights for a delegate or null. Results can be filtered by level or cycle.
+    """
+    endorsing_rights(level: [Int], cycle: [Int]): [EndorsingRight]
+}
+
+type BakingRight {
+    level: Int!
+    delegate: String!
+    priority: Int!
+    estimated_time: DateTime
+}
+
+type EndorsingRight {
+    level: Int!
+    delegate: String!
+    slots: [Int]!
+    estimated_time: DateTime
 }
 
 type FrozenBalanceByCycle {
@@ -215,6 +243,44 @@ type FrozenBalanceByCycle {
     deposit: BigNumber!
     fees: BigNumber!
     rewards: BigNumber!
+}
+
+type Constants {
+    proof_of_work_nonce_size: Int
+    nonce_length: Int
+    max_revelations_per_block: Int
+    max_operation_data_length: Int
+    max_proposals_per_delegate: Int
+    preserved_cycles: Int
+    blocks_per_cycle: Int
+    blocks_per_commitment: Int
+    blocks_per_roll_snapshot: Int
+    blocks_per_voting_period: Int
+    time_between_blocks: [BigNumber]
+    endorsers_per_block: Int
+    hard_gas_limit_per_operation: BigNumber
+    hard_gas_limit_per_block: BigNumber
+    proof_of_work_threshold: BigNumber
+    tokens_per_roll: BigNumber
+    michelson_maximum_type_size: Int
+    seed_nonce_revelation_tip: BigNumber
+    origination_size: Int
+    block_security_deposit: BigNumber
+    endorsement_security_deposit: BigNumber
+    baking_reward_per_endorsement: [BigNumber]
+    endorsement_reward: [BigNumber]
+    cost_per_byte: BigNumber
+    hard_storage_limit_per_operation: BigNumber
+    test_chain_duration: BigNumber
+    quorum_min: Int
+    quorum_max: Int
+    min_proposal_quorum: Int
+    initial_endorsers: Int
+    delay_per_missing_endorsement: BigNumber
+    """
+    Pre Carthaganet
+    """
+    block_reward: BigNumber
 }
 
 type Contract {

@@ -1,27 +1,32 @@
 import { OperationResultStatusEnum, OpKind } from '@taquito/rpc';
-import { flatten } from 'lodash';
+import { flatten, isArray } from 'lodash';
 import { container } from 'tsyringe';
 
 import { TezosService } from '../services/tezos-service';
 import {
+    ActivateAccount,
+    BakingRight,
     BalanceUpdateKind,
+    Ballot,
     BallotVote,
     Block,
-    OperationContents,
-    ActivateAccount,
-    Ballot,
+    Constants,
+    Contract,
+    Delegate,
     Delegation,
     DoubleBakingEvidence,
     DoubleEndorsementEvidence,
     Endorsement,
+    EndorsingRight,
+    OperationContents,
+    OperationEntry,
     Origination,
     Proposals,
     Reveal,
     Transaction,
-    OperationEntry,
-    Contract,
-    Delegate,
 } from '../types/types';
+import { eventNames } from 'cluster';
+import { ApolloError } from 'apollo-server-express';
 
 interface OperationArguments {
     address?: string;
@@ -35,7 +40,7 @@ interface OperationArguments {
     status?: OperationResultStatusEnum;
 }
 
-const tezosRpcService = container.resolve(TezosService);
+const tezosService = container.resolve(TezosService);
 
 export const blockResolver = {
     Block: {
@@ -65,19 +70,36 @@ export const blockResolver = {
         operations: (root: Block) => {
             return root.operations.map(opsArray => opsArray.map(extendOperation));
         },
-        delegate: (root: Block, args: { address: string }): Promise<Delegate | null> => {
-            return TezosService.handleNotFound(() => tezosRpcService.client.getDelegates(args.address, { block: root.hash }));
-        },
-        contract: async (root: Block, args: { address: string }): Promise<Contract | null> => {
-            const result = await TezosService.handleNotFound(() => tezosRpcService.client.getContract(args.address, { block: root.hash }));
+        delegate: async (root: Block, args: { address: string }): Promise<Delegate | null> => {
+            const result = await tezosService.client.getDelegates(args.address, { block: root.hash });
             if (result != null) {
                 return {
                     ...result,
-                    blockHash: root.hash,
+                    block_hash: root.hash,
                     address: args.address,
                 };
             }
             return null;
+        },
+        contract: async (root: Block, args: { address: string }): Promise<Contract | null> => {
+            const result = await TezosService.handleNotFound(() => tezosService.client.getContract(args.address, { block: root.hash }));
+            if (result != null) {
+                return {
+                    ...result,
+                    block_hash: root.hash,
+                    address: args.address,
+                };
+            }
+            return null;
+        },
+        constants: async (root: Block): Promise<Constants> => {
+            // can't use taquito here, bcs they do not have a support for Carthaganet constants
+            // const result = await tezosRpcService.client.getConstants({ block: root.hash }));
+            const result = await tezosService.axios.get(`/chains/main/blocks/${root.hash}/context/constants`);
+            let constants = { ...result.data };
+            // Carthaganet breaking change fix
+            constants.endorsement_reward = isArray(constants.endorsement_reward) ? constants.endorsement_reward : [constants.endorsement_reward];
+            return constants;
         },
     },
 };
