@@ -13,7 +13,7 @@ const tezosService = container.resolve(TezosService) as TezosService;
 export const contractResolver = {
     Contract: {
         async entrypoints(contract: Contract): Promise<Entrypoints | null> {
-            const result = await TezosService.handleNotFound(() => tezosService.client.getEntrypoints(contract.address, { block: contract.blockHash }));
+            const result = await TezosService.handleNotFound(() => tezosService.client.getEntrypoints(contract.address, { block: contract.block_hash }));
             if (result != null) {
                 return {
                     ...result,
@@ -28,18 +28,18 @@ export const contractResolver = {
             return null;
         },
         async manager_key(contract: Contract): Promise<ManagerKey | null> {
-            const result = await TezosService.handleNotFound(() => tezosService.client.getManagerKey(contract.address, { block: contract.blockHash }));
+            const result = await TezosService.handleNotFound(() => tezosService.client.getManagerKey(contract.address, { block: contract.block_hash }));
             if (result != null) {
                 return managerKeyIsString(result) ? { key: result } : { key: result.key, invalid: true };
             }
             return null;
         },
         storage(contract: Contract): Promise<MichelsonExpression | null> {
-            return TezosService.handleNotFound(() => tezosService.client.getStorage(contract.address, { block: contract.blockHash }));
+            return TezosService.handleNotFound(() => tezosService.client.getStorage(contract.address, { block: contract.block_hash }));
         },
         async storage_decoded(contract: Contract): Promise<any> {
             const contractSchema = Schema.fromRPCResponse({ script: contract.script as ScriptResponse });
-            let storage = await tezosService.client.getStorage(contract.address, { block: contract.blockHash });
+            let storage = await tezosService.client.getStorage(contract.address, { block: contract.block_hash });
             return contractSchema.Execute(storage);
         },
         schema(contract: Contract): any {
@@ -55,13 +55,13 @@ export const contractResolver = {
 
                 const encodedExpr = await getBigMapKeyHash(args);
                 return await TezosService.handleNotFound(() =>
-                    tezosService.client.getBigMapExpr(args.bigMapId!.toString(), encodedExpr, { block: contract.blockHash })
+                    tezosService.client.getBigMapExpr(args.bigMapId!.toString(), encodedExpr, { block: contract.block_hash })
                 );
             } else {
                 // query using deprecated big map RPC
                 const contractSchema = Schema.fromRPCResponse({ script: contract.script as ScriptResponse });
                 const encodedKey = contractSchema.EncodeBigMapKey(args.key);
-                return TezosService.handleNotFound(() => tezosService.client.getBigMapKey(contract.address, encodedKey, { block: contract.blockHash }));
+                return TezosService.handleNotFound(() => tezosService.client.getBigMapKey(contract.address, encodedKey, { block: contract.block_hash }));
             }
         },
         async big_map_value_decoded(contract: Contract, args: { key: any }): Promise<any> {
@@ -76,7 +76,7 @@ export const contractResolver = {
             return null;
         },
         delegate(contract: Contract): Promise<string | null> {
-            return TezosService.handleNotFound(() => tezosService.client.getDelegate(contract.address, { block: contract.blockHash }));
+            return TezosService.handleNotFound(() => tezosService.client.getDelegate(contract.address, { block: contract.block_hash }));
         },
     },
 };
