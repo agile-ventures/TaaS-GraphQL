@@ -57,9 +57,26 @@ type Block {
     hash: String!
     header: BlockHeader!
     metadata: BlockMetadata!
+
+    """
+    Returns the delegate with the given address, or null
+    """
     delegate(address: Address): Delegate
+
+    """
+    Returns the contract with the given address, or null
+    """
     contract(address: Address): Contract
-    operations(hash: String): [[OperationEntry]]
+
+    """
+    Returns the operation entry with the given hash, or null
+    """
+    operation(hash: String!): OperationEntry
+
+    """
+    All operations in this block as returned from the Tezos node
+    """
+    operations: [[OperationEntry]]
 
     """
     Returns activations from block. Results can be filtered by operation hash, or address (pkh)
@@ -209,7 +226,15 @@ type Contract {
     delegate: String
     manager_key: ManagerKey
     storage: MichelsonExpression
+
+    """
+    Decoded version of the storage.
+    """
     storage_decoded: JSON
+
+    """
+    JSON representation of the storage schema.
+    """
     schema: JSON
 
     """
@@ -219,7 +244,7 @@ type Contract {
 
     """
     Returns the decoded value stored for a given key in this contract's big map. Note that this is only supported for the contracts originated
-    with the one-big_map-per-contract scheme. Babylon protocol introduced multiple bigmaps per contract, which cannot be accessed using this field.
+    with the "one big_map per contract" scheme. Babylon protocol introduced multiple bigmaps per contract, which cannot be accessed using this field.
     """
     big_map_value_decoded(key: String!): JSON
 }

@@ -51,10 +51,18 @@ export const blockResolver = {
         reveals: (root: Block, args: OperationArguments) => filterReveals(root.operations[3], OpKind.REVEAL, args),
         seed_nonce_revelations: (root: Block, args: OperationArguments) => filterOperations(root.operations[1], OpKind.SEED_NONCE_REVELATION, args),
         transactions: (root: Block, args: OperationArguments) => filterTransactions(root.operations[3], OpKind.TRANSACTION, args),
-        operations: (root: Block, args: OperationArguments) => {
-            if (args?.hash) {
-                return root.operations.map(opsArray => opsArray.filter(o => o.hash == args.hash).map(extendOperation));
+        operation: (root: Block, args: { hash: string }) => {
+            // find the operation with given hash
+            for (let ops of root.operations) {
+                for (let op of ops) {
+                    if (op.hash == args.hash) {
+                        return op;
+                    }
+                }
             }
+            return null;
+        },
+        operations: (root: Block) => {
             return root.operations.map(opsArray => opsArray.map(extendOperation));
         },
         delegate: (root: Block, args: { address: string }): Promise<Delegate | null> => {
