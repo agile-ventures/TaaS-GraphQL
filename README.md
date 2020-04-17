@@ -2,7 +2,7 @@
 
 ## About TaaS GraphQL
 
-TaaS GraphQL provides GraphQL API interface to [Tezos Node RPC API](https://tezos.gitlab.io/api/rpc.html) based on [TZIP-14](https://gitlab.com/tzip/tzip/-/blob/master/proposals/tzip-14/tzip-14.md).
+TaaS GraphQL provides [GraphQL](https://graphql.org/) API interface to [Tezos Node RPC API](https://tezos.gitlab.io/api/rpc.html) based on [TZIP-14](https://gitlab.com/tzip/tzip/-/blob/master/proposals/tzip-14/tzip-14.md).
 
 ## Documentation
 
@@ -59,7 +59,7 @@ tezoslive/taas-graphql
 
 If you have used default port number \(3000\) and exposed the port using `docker run` command mentioned above, you should be able to access the following URL in the browser \(with enabled `GRAPHQL_ENABLE_PLAYGROUND`\).
 
-> htp://127.0.0.1:3000/graphql](htp://127.0.0.1:3000/graphql)
+> [htp://127.0.0.1:3000/graphql](htp://127.0.0.1:3000/graphql)
 
 ### GraphQL Schema
 
