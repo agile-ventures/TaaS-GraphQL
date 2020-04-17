@@ -29,14 +29,14 @@ schema {
 
 type Query {
     """
-    Block fetches a Tezos block by number, hash or relative pointer (head~n).
+    Block fetches a Tezos block by number, hash (Base58Check-encoded) or relative pointer (head~n).
     If neither is supplied, the most recent known block (head) is returned.
     """
     block(block: String): Block
 
     """
     Blocks returns all blocks in a given interval, but maximum of <count> elements.
-    Hash, level, 'head' and 'head~n' notations are allowed.
+    Hash (Base58Check-encoded), level, relative pointer (head~n) and head are allowed in the "from" a "to" arguments.
 
     Example queries:
     blocks(from: "head~4") {...}  # return last 5 blocks
@@ -52,21 +52,40 @@ type Query {
 Tezos block
 """
 type Block {
+    """
+    Tezos protocol ID (Base58Check-encoded)
+    """
     protocol: String!
+
+    """
+    The network identifier (Base58Check-encoded)
+    """
     chain_id: String!
+
+    """
+    The block identifier (Base58Check-encoded)
+    """
     hash: String!
+
+    """
+    Associated header object.
+    """
     header: BlockHeader!
+
+    """
+    Associated metadata object.
+    """
     metadata: BlockMetadata!
 
     """
     Returns the delegate with the given address, or null
     """
-    delegate(address: Address): Delegate
+    delegate(address: Address!): Delegate
 
     """
     Returns the constants
     """
-    constants: Constants
+    constants: Constants!
 
     """
     Returns the contract with the given address, or null
