@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 
 export interface Block {
     protocol: string;
-    chain_id: string;
+    chainId: string;
     hash: string;
     header: BlockHeader;
     metadata: BlockMetadata;
@@ -14,41 +14,41 @@ export interface BlockHeader {
     proto: number;
     predecessor: string;
     timestamp: string;
-    validation_pass: number;
-    operations_hash: string;
+    validationPass: number;
+    operationsHash: string;
     fitness: string[];
     context: string;
     priority: number;
-    proof_of_work_nonce: string;
-    seed_nonce_hash?: string;
+    proofOfWorkNonce: string;
+    seedNonceHash?: string;
     signature: string;
 }
 
 export interface BlockMetadata {
     protocol: string;
-    next_protocol: string;
-    test_chain_status: TestChainStatus;
-    max_operations_ttl: number;
-    max_operation_data_length: number;
-    max_block_header_length: number;
-    max_operation_list_length: MaxOperationListLength[];
+    nextProtocol: string;
+    testChainStatus: TestChainStatus;
+    maxOperationsTtl: number;
+    maxOperationDataLength: number;
+    maxBlockHeaderLength: number;
+    maxOperationListLength: MaxOperationListLength[];
     baker: string;
     level: Level;
-    voting_period_kind: string;
-    nonce_hash?: string;
-    consumed_gas: string;
+    votingPeriodKind: string;
+    nonceHash?: string;
+    consumedGas: string;
     deactivated: string[];
-    balance_updates: BalanceUpdate[];
+    balanceUpdates: BalanceUpdate[];
 }
 
 export interface Level {
     level: number;
-    level_position: number;
+    levelPosition: number;
     cycle: number;
-    cycle_position: number;
-    voting_period: number;
-    voting_period_position: number;
-    expected_commitment: boolean;
+    cyclePosition: number;
+    votingPeriod: number;
+    votingPeriodPosition: number;
+    expectedCommitment: boolean;
 }
 
 export interface TestChainStatus {
@@ -56,8 +56,8 @@ export interface TestChainStatus {
 }
 
 export interface MaxOperationListLength {
-    max_size: number;
-    max_op?: number;
+    maxSize: number;
+    maxOp?: number;
 }
 
 export enum BalanceUpdateKind {
@@ -71,26 +71,26 @@ export interface BakingRight {
     level: number;
     delegate: string;
     priority: number;
-    estimated_time?: Date;
+    estimatedTime?: Date;
 }
 
 export interface EndorsingRight {
     level: number;
     delegate: string;
     slots: number[];
-    estimated_time?: Date;
+    estimatedTime?: Date;
 }
 
 export interface Delegate {
     balance: BigNumber;
-    frozen_balance: BigNumber;
-    frozen_balance_by_cycle: FrozenBalanceByCycle[];
-    staking_balance: BigNumber;
-    delegated_contracts: string[];
-    delegated_balance: BigNumber;
+    frozenBalance: BigNumber;
+    frozenBalanceByCycle: FrozenBalanceByCycle[];
+    stakingBalance: BigNumber;
+    delegatedContracts: string[];
+    delegatedBalance: BigNumber;
     deactivated: boolean;
-    grace_period: number;
-    block_hash: string;
+    gracePeriod: number;
+    blockHash: string;
     address: string;
 }
 
@@ -103,43 +103,43 @@ interface FrozenBalanceByCycle {
 
 export interface Contract {
     address: string;
-    block_hash: string;
+    blockHash: string;
     balance: BigNumber;
     script?: ScriptedContracts;
     counter?: string;
 }
 
 export interface Constants {
-    proof_of_work_nonce_size: number;
-    nonce_length: number;
-    max_revelations_per_block: number;
-    max_operation_data_length: number;
-    preserved_cycles: number;
-    blocks_per_cycle: number;
-    blocks_per_commitment: number;
-    blocks_per_roll_snapshot: number;
-    blocks_per_voting_period: number;
-    time_between_blocks: BigNumber[];
-    endorsers_per_block: number;
-    hard_gas_limit_per_operation: BigNumber;
-    hard_gas_limit_per_block: BigNumber;
-    proof_of_work_threshold: BigNumber;
-    tokens_per_roll: BigNumber;
-    michelson_maximum_type_size: number;
-    seed_nonce_revelation_tip: string;
-    origination_burn: string;
-    block_security_deposit: BigNumber;
-    endorsement_security_deposit: BigNumber;
-    block_reward?: BigNumber;
-    endorsement_reward?: BigNumber | [BigNumber];
-    cost_per_byte: BigNumber;
-    hard_storage_limit_per_operation: BigNumber;
-    min_proposal_quorum?: number;
-    quorum_max?: number;
-    quorum_min?: number;
-    delay_per_missing_endorsement?: number;
-    initial_endorsers?: string[];
-    baking_reward_per_endorsement?: [BigNumber];
+    proofOfWorkNonceSize: number;
+    nonceLength: number;
+    maxRevelationsPerBlock: number;
+    maxOperationDataLength: number;
+    preservedCycles: number;
+    blocksPerCycle: number;
+    blocksPerCommitment: number;
+    blocksPerRollSnapshot: number;
+    blocksPerVotingPeriod: number;
+    timeBetweenBlocks: BigNumber[];
+    endorsersPerBlock: number;
+    hardGasLimitPerOperation: BigNumber;
+    hardGasLimitPerBlock: BigNumber;
+    proofOfWorkThreshold: BigNumber;
+    tokensPerRoll: BigNumber;
+    michelsonMaximumTypeSize: number;
+    seedNonceRevelationTip: string;
+    originationBurn: string;
+    blockSecurityDeposit: BigNumber;
+    endorsementSecurityDeposit: BigNumber;
+    blockReward?: BigNumber;
+    endorsementReward?: BigNumber | [BigNumber];
+    costPerByte: BigNumber;
+    hardStorageLimitPerOperation: BigNumber;
+    minProposalQuorum?: number;
+    quorumMax?: number;
+    quorumMin?: number;
+    delayPerMissingEndorsement?: number;
+    initialEndorsers?: string[];
+    bakingRewardPerEndorsement?: [BigNumber];
 }
 
 export interface ManagerKey {
@@ -178,7 +178,7 @@ export interface MichelsonExpressionExtended {
 
 export interface OperationEntry {
     protocol: string;
-    chain_id: string;
+    chainId: string;
     hash: string;
     branch: string;
     contents: OperationContents[];
@@ -197,20 +197,20 @@ export interface Endorsement extends OperationContents {
 }
 
 export interface EndorsementMetadata {
-    balance_updates: BalanceUpdate[];
+    balanceUpdates: BalanceUpdate[];
     delegate: string;
     slots: number[];
 }
 
 export interface SeedNonceRevelation extends OperationContents {
-    kind: 'seed_nonce_revelation';
+    kind: 'seedNonceRevelation';
     level: number;
     nonce: string;
     metadata: OperationContentMetadata;
 }
 
 export interface DoubleEndorsementEvidence extends OperationContents {
-    kind: 'double_endorsement_evidence';
+    kind: 'doubleEndorsementEvidence';
     op1: InlinedEndorsement;
     op2: InlinedEndorsement;
     metadata: OperationContentMetadata;
@@ -230,18 +230,18 @@ export interface InlinedEndorsementContents {
 export type InlinedEndorsementKindEnum = 'endorsement';
 
 export interface OperationContentMetadata {
-    balance_updates: BalanceUpdate[];
+    balanceUpdates: BalanceUpdate[];
 }
 
 export interface DoubleBakingEvidence extends OperationContents {
-    kind: 'double_baking_evidence';
+    kind: 'doubleBakingEvidence';
     bh1: BlockHeader;
     bh2: BlockHeader;
     metadata: OperationContentMetadata;
 }
 
 export interface ActivateAccount extends OperationContents {
-    kind: 'activate_account';
+    kind: 'activateAccount';
     pkh: string;
     secret: string;
     metadata: OperationContentMetadata;
@@ -252,16 +252,16 @@ export interface Reveal extends OperationContents {
     source: string;
     fee: string;
     counter: string;
-    gas_limit: string;
-    storage_limit: string;
-    public_key: string;
+    gasLimit: string;
+    storageLimit: string;
+    publicKey: string;
     metadata: RevealMetadata;
 }
 
 export interface RevealMetadata {
-    balance_updates: BalanceUpdate[];
-    operation_result: RevealOperationResult;
-    internal_operation_results?: InternalOperationResult[];
+    balanceUpdates: BalanceUpdate[];
+    operationResult: RevealOperationResult;
+    internalOperationResults?: InternalOperationResult[];
 }
 
 export interface RevealOperationResult extends OperationResult {}
@@ -271,8 +271,8 @@ export interface Transaction extends OperationContents {
     source: string;
     fee: string;
     counter: string;
-    gas_limit: string;
-    storage_limit: string;
+    gasLimit: string;
+    storageLimit: string;
     amount: string;
     destination: string;
     parameters?: MichelsonExpression;
@@ -280,23 +280,23 @@ export interface Transaction extends OperationContents {
 }
 
 export interface TransactionMetadata {
-    balance_updates: BalanceUpdate[];
-    operation_result: TransactionOperationResult;
-    internal_operation_results?: InternalOperationResult[];
+    balanceUpdates: BalanceUpdate[];
+    operationResult: TransactionOperationResult;
+    internalOperationResults?: InternalOperationResult[];
 }
 
 export interface TransactionOperationResult extends OperationResult {
     storage?: MichelsonExpression;
-    big_map_diff?: BigMapDiffItem[];
-    balance_updates?: BalanceUpdate[];
-    originated_contracts?: string[];
-    storage_size?: string;
-    paid_storage_size_diff?: string;
-    allocated_destination_contract?: boolean;
+    bigMapDiff?: BigMapDiffItem[];
+    balanceUpdates?: BalanceUpdate[];
+    originatedContracts?: string[];
+    storageSize?: string;
+    paidStorageSizeDiff?: string;
+    allocatedDestinationContract?: boolean;
 }
 
 export interface BigMapDiffItem {
-    key_hash: string;
+    keyHash: string;
     key: MichelsonExpression;
     value?: MichelsonExpression;
 }
@@ -306,16 +306,16 @@ export interface Delegation extends OperationContents {
     source: string;
     fee: string;
     counter: string;
-    gas_limit: string;
-    storage_limit: string;
+    gasLimit: string;
+    storageLimit: string;
     delegate?: string;
     metadata: DelegationMetadata;
 }
 
 export interface DelegationMetadata {
-    balance_updates: BalanceUpdate[];
-    operation_result: DelegationOperationResult;
-    internal_operation_results?: InternalOperationResult[];
+    balanceUpdates: BalanceUpdate[];
+    operationResult: DelegationOperationResult;
+    internalOperationResults?: InternalOperationResult[];
 }
 
 export interface DelegationOperationResult extends OperationResult {}
@@ -325,8 +325,8 @@ export interface Origination extends OperationContents {
     source: string;
     fee: string;
     counter: string;
-    gas_limit: string;
-    storage_limit: string;
+    gasLimit: string;
+    storageLimit: string;
     balance: string;
     delegate?: string;
     script?: ScriptedContracts;
@@ -334,16 +334,16 @@ export interface Origination extends OperationContents {
 }
 
 export interface OriginationMetadata {
-    balance_updates: BalanceUpdate[];
-    operation_result: OriginationOperationResult;
-    internal_operation_results?: InternalOperationResult[];
+    balanceUpdates: BalanceUpdate[];
+    operationResult: OriginationOperationResult;
+    internalOperationResults?: InternalOperationResult[];
 }
 
 export interface OriginationOperationResult extends OperationResult {
-    balance_updates?: BalanceUpdate[];
-    originated_contracts?: string[];
-    storage_size?: string;
-    paid_storage_size_diff?: string;
+    balanceUpdates?: BalanceUpdate[];
+    originatedContracts?: string[];
+    storageSize?: string;
+    paidStorageSizeDiff?: string;
 }
 
 export interface Proposals extends OperationContents {
@@ -381,7 +381,7 @@ export interface InternalOperationResult {
     amount?: string;
     destination?: string;
     parameters?: TransactionOperationParameter;
-    public_key?: string;
+    publicKey?: string;
     balance?: string;
     delegate?: string;
     script?: ScriptedContracts;
@@ -397,7 +397,7 @@ export interface TransactionOperationParameter {
 
 export interface OperationResult {
     status: OperationResultStatus;
-    consumed_gas?: string;
+    consumedGas?: string;
     errors?: OperationError[];
 }
 

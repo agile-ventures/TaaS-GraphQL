@@ -6,6 +6,7 @@ import { container } from 'tsyringe';
 
 import { TezosService } from '../services/tezos-service';
 import { BigMapKeyType, Contract, EntrypointPath, Entrypoints, ManagerKey, MichelsonExpression } from '../types/types';
+import { convertResponseOrNull, convertResponse } from './utils';
 
 const blake = require('blakejs');
 const tezosService = container.resolve(TezosService) as TezosService;
@@ -13,7 +14,9 @@ const tezosService = container.resolve(TezosService) as TezosService;
 export const contractResolver = {
     Contract: {
         async entrypoints(contract: Contract): Promise<Entrypoints | null> {
-            const result = await TezosService.handleNotFound(() => tezosService.client.getEntrypoints(contract.address, { block: contract.block_hash }));
+            const result = convertResponseOrNull<Entrypoints>(
+                await TezosService.handleNotFound(() => tezosService.client.getEntrypoints(contract.address, { block: contract.blockHash }))
+            );
             if (result != null) {
                 return {
                     ...result,
@@ -27,44 +30,52 @@ export const contractResolver = {
             }
             return null;
         },
-        async manager_key(contract: Contract): Promise<ManagerKey | null> {
-            const result = await TezosService.handleNotFound(() => tezosService.client.getManagerKey(contract.address, { block: contract.block_hash }));
+        async managerKey(contract: Contract): Promise<ManagerKey | null> {
+            const result = convertResponseOrNull<ManagerKey>(
+                await TezosService.handleNotFound(() => tezosService.client.getManagerKey(contract.address, { block: contract.blockHash }))
+            );
             if (result != null) {
                 return managerKeyIsString(result) ? { key: result } : { key: result.key, invalid: true };
             }
             return null;
         },
-        storage(contract: Contract): Promise<MichelsonExpression | null> {
-            return TezosService.handleNotFound(() => tezosService.client.getStorage(contract.address, { block: contract.block_hash }));
+        async storage(contract: Contract): Promise<MichelsonExpression | null> {
+            return convertResponseOrNull(
+                await TezosService.handleNotFound(() => tezosService.client.getStorage(contract.address, { block: contract.blockHash }))
+            );
         },
-        async storage_decoded(contract: Contract): Promise<any> {
+        async storageDecoded(contract: Contract): Promise<any> {
             const contractSchema = Schema.fromRPCResponse({ script: contract.script as ScriptResponse });
-            let storage = await tezosService.client.getStorage(contract.address, { block: contract.block_hash });
+            let storage = await tezosService.client.getStorage(contract.address, { block: contract.blockHash });
             return contractSchema.Execute(storage);
         },
         schema(contract: Contract): any {
             var schema = Schema.fromRPCResponse({ script: contract.script as ScriptResponse });
             return schema.ExtractSchema();
         },
-        async big_map_value(contract: Contract, args: { key: any; keyType?: BigMapKeyType; bigMapId?: number }): Promise<any> {
+        async bigMapValue(contract: Contract, args: { key: any; keyType?: BigMapKeyType; bigMapId?: number }): Promise<MichelsonExpression | null> {
             if (args.bigMapId) {
                 // query using RPC with map ID
                 if (!args.keyType) {
-                    throw new ApolloError('Parameter key_type has to be present when fetching big map of given ID');
+                    throw new ApolloError('Parameter keyType has to be present when fetching big map of given ID');
                 }
 
                 const encodedExpr = await getBigMapKeyHash(args);
-                return await TezosService.handleNotFound(() =>
-                    tezosService.client.getBigMapExpr(args.bigMapId!.toString(), encodedExpr, { block: contract.block_hash })
+                return convertResponseOrNull(
+                    await TezosService.handleNotFound(() =>
+                        tezosService.client.getBigMapExpr(args.bigMapId!.toString(), encodedExpr, { block: contract.blockHash })
+                    )
                 );
             } else {
                 // query using deprecated big map RPC
                 const contractSchema = Schema.fromRPCResponse({ script: contract.script as ScriptResponse });
                 const encodedKey = contractSchema.EncodeBigMapKey(args.key);
-                return TezosService.handleNotFound(() => tezosService.client.getBigMapKey(contract.address, encodedKey, { block: contract.block_hash }));
+                return convertResponseOrNull(
+                    TezosService.handleNotFound(() => tezosService.client.getBigMapKey(contract.address, encodedKey, { block: contract.blockHash }))
+                );
             }
         },
-        async big_map_value_decoded(contract: Contract, args: { key: any }): Promise<any> {
+        async bigMapValueDecoded(contract: Contract, args: { key: any }): Promise<any> {
             const contractSchema = Schema.fromRPCResponse({ script: contract.script as ScriptResponse });
             const encodedKey = contractSchema.EncodeBigMapKey(args.key);
 
@@ -76,7 +87,7 @@ export const contractResolver = {
             return null;
         },
         delegate(contract: Contract): Promise<string | null> {
-            return TezosService.handleNotFound(() => tezosService.client.getDelegate(contract.address, { block: contract.block_hash }));
+            return TezosService.handleNotFound(() => tezosService.client.getDelegate(contract.address, { block: contract.blockHash }));
         },
     },
 };

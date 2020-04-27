@@ -8,28 +8,28 @@ const tezosService = container.resolve(TezosService) as TezosService;
 
 export const delegateResolver = {
     Delegate: {
-        baking_rights: async (root: Delegate, args: { level?: number[]; cycle?: number[]; max_priority?: number }): Promise<BakingRight[] | null> => {
+        bakingRights: async (root: Delegate, args: { level?: number[]; cycle?: number[]; maxPriority?: number }): Promise<BakingRight[] | null> => {
             checkMaxPriority(args);
             checkMaxCycles(args);
             checkMaxLevels(args);
-            return TezosService.handleNotFound(() => tezosService.client.getBakingRights({ ...args, delegate: root.address }, { block: root.block_hash }));
+            return TezosService.handleNotFound(() => tezosService.client.getBakingRights({ ...args, delegate: root.address }, { block: root.blockHash }));
         },
-        endorsing_rights: async (root: Delegate, args: { level?: number[]; cycle?: number[] }): Promise<EndorsingRight[] | null> => {
+        endorsingRights: async (root: Delegate, args: { level?: number[]; cycle?: number[] }): Promise<EndorsingRight[] | null> => {
             checkMaxCycles(args);
             checkMaxLevels(args);
-            return TezosService.handleNotFound(() => tezosService.client.getEndorsingRights({ ...args, delegate: root.address }, { block: root.block_hash }));
+            return TezosService.handleNotFound(() => tezosService.client.getEndorsingRights({ ...args, delegate: root.address }, { block: root.blockHash }));
         },
     },
 };
 
 function checkMaxPriority(args: any) {
     const maxPriority = process.env.TEZOS_BAKING_RIGHTS_MAX_PRIORITY ? +process.env.TEZOS_BAKING_RIGHTS_MAX_PRIORITY : 5;
-    if (!args.max_priority) {
-        args.max_priority = maxPriority;
+    if (!args.maxPriority) {
+        args.maxPriority = maxPriority;
     }
-    if (args.max_priority > maxPriority) {
+    if (args.maxPriority > maxPriority) {
         throw new ApolloError(
-            `max_priority must be lower or equal to ${process.env.TEZOS_BAKING_RIGHTS_MAX_PRIORITY}. You can set this value in the ENV variable TEZOS_BAKING_RIGHTS_MAX_PRIORITY.`
+            `maxPriority must be lower or equal to ${process.env.TEZOS_BAKING_RIGHTS_MAX_PRIORITY}. You can set this value in the ENV variable TEZOS_BAKING_RIGHTS_MAX_PRIORITY.`
         );
     }
 }

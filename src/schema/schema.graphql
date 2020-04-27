@@ -60,7 +60,7 @@ type Block {
     """
     The network identifier (Base58Check-encoded)
     """
-    chain_id: String!
+    chainId: String!
 
     """
     The block's unique identifier (Base58Check-encoded)
@@ -120,12 +120,12 @@ type Block {
     """
     Returns double baking evidence from block. Results can be filtered by operation hash or delegate.
     """
-    double_baking_evidence(hash: String, delegate: Address): [DoubleBakingEvidence!]!
+    doubleBakingEvidence(hash: String, delegate: Address): [DoubleBakingEvidence!]!
 
     """
     Returns double endorsement evidence from block. Results can be filtered by operation hash or delegate.
     """
-    double_endorsement_evidence(hash: String, delegate: Address): [DoubleEndorsementEvidence!]!
+    doubleEndorsementEvidence(hash: String, delegate: Address): [DoubleEndorsementEvidence!]!
 
     """
     Returns endorsements from block. Results can be filtered by operation hash, or delegate.
@@ -136,7 +136,7 @@ type Block {
     Returns originations from block. Results can be filtered by
     operation hash, source, delegate, originated contract or operation result status.
     """
-    originations(hash: String, source: Address, delegate: Address, originated_contract: Address, status: OperationResultStatus): [Origination!]!
+    originations(hash: String, source: Address, delegate: Address, originatedContract: Address, status: OperationResultStatus): [Origination!]!
 
     """
     Returns proposals from block. Results can be filtered by operation hash, source or proposal hash.
@@ -151,7 +151,7 @@ type Block {
     """
     Returns seed nonce revelations from block. Results can be filtered by operation hash, source or operation result status.
     """
-    seed_nonce_revelations(hash: String, delegate: Address): [SeedNonceRevelation!]!
+    seedNonceRevelations(hash: String, delegate: Address): [SeedNonceRevelation!]!
 
     """
     Returns transactions from block. Results can be filtered by operation hash, source, destination or operation result status.
@@ -167,13 +167,13 @@ type BlockHeader {
     proto: Int!
     predecessor: String!
     timestamp: DateTime!
-    validation_pass: Int!
-    operations_hash: String
+    validationPass: Int!
+    operationsHash: String
     fitness: [String!]!
     context: String!
     priority: Int!
-    proof_of_work_nonce: String!
-    seed_nonce_hash: String
+    proofOfWorkNonce: String!
+    seedNonceHash: String
     signature: String!
 }
 
@@ -182,19 +182,19 @@ Block metadata. See https://tezos.gitlab.io/api/rpc.html#get-block-id-metadata
 """
 type BlockMetadata {
     protocol: String!
-    next_protocol: String!
-    test_chain_status: TestChainStatus!
-    max_operations_ttl: Int!
-    max_operation_data_length: Int!
-    max_block_header_length: Int!
-    max_operation_list_length: [MaxOperationListLength!]
+    nextProtocol: String!
+    testChainStatus: TestChainStatus!
+    maxOperationsTtl: Int!
+    maxOperationDataLength: Int!
+    maxBlockHeaderLength: Int!
+    maxOperationListLength: [MaxOperationListLength!]
     baker: Address!
     level: Level!
-    voting_period_kind: String!
-    nonce_hash: String
-    consumed_gas: BigNumber
+    votingPeriodKind: String!
+    nonceHash: String
+    consumedGas: BigNumber
     deactivated: [Address!]
-    balance_updates: [BalanceUpdate!]
+    balanceUpdates: [BalanceUpdate!]
 }
 
 """
@@ -209,7 +209,7 @@ type Level {
     """
     The level of the block relative to the block that starts protocol alpha
     """
-    level_position: Int!
+    levelPosition: Int!
 
     """
     The current cycle's number. Note that cycles are a protocol-specific notion. As a result, the cycle number starts at 0 with the first block of protocol alpha.
@@ -219,22 +219,22 @@ type Level {
     """
     The current level of the block relative to the first block of the current cycle.
     """
-    cycle_position: Int!
+    cyclePosition: Int!
 
     """
     The current voting period's index. Note that cycles are a protocol-specific notion. As a result, the voting period index starts at 0 with the first block of protocol alpha.
     """
-    voting_period: Int!
+    votingPeriod: Int!
 
     """
     The current level of the block relative to the first block of the current voting period.
     """
-    voting_period_position: Int!
+    votingPeriodPosition: Int!
 
     """
     Tells whether the baker of this block has to commit a seed nonce hash.
     """
-    expected_commitment: Boolean!
+    expectedCommitment: Boolean!
 }
 
 """
@@ -242,15 +242,15 @@ Status of the test chain
 """
 type TestChainStatus {
     """
-    The status value: not_running (there is no test chain at the moment), forking (the test chain is being setup),
+    The status value: notRunning (there is no test chain at the moment), forking (the test chain is being setup),
     running (the test chain is running).
     """
     status: String!
 }
 
 type MaxOperationListLength {
-    max_size: Int!
-    max_op: Int
+    maxSize: Int!
+    maxOp: Int
 }
 
 enum BalanceUpdateKind {
@@ -276,28 +276,28 @@ type Delegate {
     """
     The total frozen balances of a given delegate, this includes the frozen deposits, rewards and fees.
     """
-    frozen_balance: BigNumber!
+    frozenBalance: BigNumber!
 
     """
     Returns the frozen balances of a given delegate, indexed by the cycle by which it will be unfrozen.
     """
-    frozen_balance_by_cycle: [FrozenBalanceByCycle!]!
+    frozenBalanceByCycle: [FrozenBalanceByCycle!]!
 
     """
     The total amount of tokens delegated to a given delegate. This includes the balances of all the contracts that delegate to it,
     but also the balance of the delegate itself and its frozen fees and deposits. The rewards do not count in the delegated balance until they are unfrozen.
     """
-    staking_balance: BigNumber!
+    stakingBalance: BigNumber!
 
     """
     The list of contracts that delegate to a given delegate.
     """
-    delegated_contracts: [String!]!
+    delegatedContracts: [String!]!
 
     """
     The balances of all the contracts that delegate to a given delegate. This excludes the delegate's own balance and its frozen balances.
     """
-    delegated_balance: BigNumber!
+    delegatedBalance: BigNumber!
 
     """
     Tells whether the delegate is currently tagged as deactivated or not.
@@ -308,17 +308,17 @@ type Delegate {
     The cycle by the end of which the delegate might be deactivated if she fails to execute any delegate action. A deactivated delegate might be reactivated
     (without loosing any rolls) by simply re-registering as a delegate. For deactivated delegates, this value contains the cycle by which they were deactivated.
     """
-    grace_period: Int!
+    gracePeriod: Int!
 
     """
-    Returns baking rights for a delegate or null. Results can be filtered by max_priority, level or cycle. If max_priority parameter is empty, server will default to the ENV value TEZOS_BAKING_RIGHTS_MAX_PRIORITY.
+    Returns baking rights for a delegate or null. Results can be filtered by maxPriority, level or cycle. If maxPriority parameter is empty, server will default to the ENV value TEZOS_BAKING_RIGHTS_MAX_PRIORITY.
     """
-    baking_rights(max_priority: Int, level: [Int], cycle: [Int]): [BakingRight]
+    bakingRights(maxPriority: Int, level: [Int], cycle: [Int]): [BakingRight]
 
     """
     Returns endorsing rights for a delegate or null. Results can be filtered by level or cycle.
     """
-    endorsing_rights(level: [Int], cycle: [Int]): [EndorsingRight]
+    endorsingRights(level: [Int], cycle: [Int]): [EndorsingRight]
 }
 
 type BakingRight {
@@ -329,7 +329,7 @@ type BakingRight {
     """
     Omitted for levels in the past, and only an estimate for levels later that the next block, based on the hypothesis that all predecessor blocks were baked at the first priority.
     """
-    estimated_time: DateTime
+    estimatedTime: DateTime
 }
 
 type EndorsingRight {
@@ -340,7 +340,7 @@ type EndorsingRight {
     """
     Omitted for levels in the past, and only an estimate for levels later that the next block, based on the hypothesis that all predecessor blocks were baked at the first priority.
     """
-    estimated_time: DateTime
+    estimatedTime: DateTime
 }
 
 """
@@ -357,41 +357,41 @@ type FrozenBalanceByCycle {
 All constants
 """
 type Constants {
-    proof_of_work_nonce_size: Int
-    nonce_length: Int
-    max_revelations_per_block: Int
-    max_operation_data_length: Int
-    max_proposals_per_delegate: Int
-    preserved_cycles: Int
-    blocks_per_cycle: Int
-    blocks_per_commitment: Int
-    blocks_per_roll_snapshot: Int
-    blocks_per_voting_period: Int
-    time_between_blocks: [BigNumber]
-    endorsers_per_block: Int
-    hard_gas_limit_per_operation: BigNumber
-    hard_gas_limit_per_block: BigNumber
-    proof_of_work_threshold: BigNumber
-    tokens_per_roll: BigNumber
-    michelson_maximum_type_size: Int
-    seed_nonce_revelation_tip: BigNumber
-    origination_size: Int
-    block_security_deposit: BigNumber
-    endorsement_security_deposit: BigNumber
-    baking_reward_per_endorsement: [BigNumber]
-    endorsement_reward: [BigNumber]
-    cost_per_byte: BigNumber
-    hard_storage_limit_per_operation: BigNumber
-    test_chain_duration: BigNumber
-    quorum_min: Int
-    quorum_max: Int
-    min_proposal_quorum: Int
-    initial_endorsers: Int
-    delay_per_missing_endorsement: BigNumber
+    proofOfWorkNonceSize: Int
+    nonceLength: Int
+    maxRevelationsPerBlock: Int
+    maxOperationDataLength: Int
+    maxProposalsPerDelegate: Int
+    preservedCycles: Int
+    blocksPerCycle: Int
+    blocksPerCommitment: Int
+    blocksPerRollSnapshot: Int
+    blocksPerVotingPeriod: Int
+    timeBetweenBlocks: [BigNumber]
+    endorsersPerBlock: Int
+    hardGasLimitPerOperation: BigNumber
+    hardGasLimitPerBlock: BigNumber
+    proofOfWorkThreshold: BigNumber
+    tokensPerRoll: BigNumber
+    michelsonMaximumTypeSize: Int
+    seedNonceRevelationTip: BigNumber
+    originationSize: Int
+    blockSecurityDeposit: BigNumber
+    endorsementSecurityDeposit: BigNumber
+    bakingRewardPerEndorsement: [BigNumber]
+    endorsementReward: [BigNumber]
+    costPerByte: BigNumber
+    hardStorageLimitPerOperation: BigNumber
+    testChainDuration: BigNumber
+    quorumMin: Int
+    quorumMax: Int
+    minProposalQuorum: Int
+    initialEndorsers: Int
+    delayPerMissingEndorsement: BigNumber
     """
     Pre Carthaganet
     """
-    block_reward: BigNumber
+    blockReward: BigNumber
 }
 
 """
@@ -431,7 +431,7 @@ type Contract {
     """
     The manager of the contract.
     """
-    manager_key: ManagerKey
+    managerKey: ManagerKey
 
     """
     Storage in Michelson format.
@@ -441,7 +441,7 @@ type Contract {
     """
     Decoded version of the storage.
     """
-    storage_decoded: JSON
+    storageDecoded: JSON
 
     """
     JSON representation of the storage schema.
@@ -451,17 +451,17 @@ type Contract {
     """
     Returns the value stored for a given key in a big map owned by this contract. If a map ID is given, the keyType argument is also required.
     """
-    big_map_value(key: String!, keyType: BigMapKeyType, bigMapId: Int): MichelsonExpression
+    bigMapValue(key: String!, keyType: BigMapKeyType, bigMapId: Int): MichelsonExpression
 
     """
     Returns the decoded value stored for a given key in this contract's big map. Note that this is only supported for the contracts originated
-    with the "one big_map per contract" scheme. Babylon protocol introduced multiple bigmaps per contract, which cannot be accessed using this field.
+    with the "one bigMap per contract" scheme. Babylon protocol introduced multiple bigmaps per contract, which cannot be accessed using this field.
     """
-    big_map_value_decoded(key: String!): JSON
+    bigMapValueDecoded(key: String!): JSON
 }
 
 """
-One of the currently supported key types used for fetching big_map values.
+One of the currently supported key types used for fetching bigMap values.
 """
 enum BigMapKeyType {
     STRING
@@ -527,7 +527,7 @@ type OperationEntry {
 
 type OperationEntryInfo {
     protocol: String!
-    chain_id: String!
+    chainId: String!
     hash: String!
     branch: String!
     signature: String
@@ -561,13 +561,13 @@ type Endorsement implements OperationContents {
 }
 
 type EndorsementMetadata {
-    balance_updates: [BalanceUpdate!]!
+    balanceUpdates: [BalanceUpdate!]!
     delegate: Address!
     slots: [Int!]!
 }
 
 type SeedNonceRevelation implements OperationContents {
-    # kind is always 'seed_nonce_revelation'
+    # kind is always 'seedNonceRevelation'
     kind: OperationKind!
     level: Int!
     nonce: String!
@@ -576,7 +576,7 @@ type SeedNonceRevelation implements OperationContents {
 }
 
 type DoubleEndorsementEvidence implements OperationContents {
-    # kind is always 'double_endorsement_evidence'
+    # kind is always 'doubleEndorsementEvidence'
     kind: OperationKind!
     op1: InlinedEndorsement!
     op2: InlinedEndorsement!
@@ -597,11 +597,11 @@ type InlinedEndorsementContents {
 }
 
 type OperationContentMetadata {
-    balance_updates: [BalanceUpdate!]!
+    balanceUpdates: [BalanceUpdate!]!
 }
 
 type DoubleBakingEvidence implements OperationContents {
-    # kind is always 'double_baking_evidence'
+    # kind is always 'doubleBakingEvidence'
     kind: OperationKind!
     bh1: BlockHeader!
     bh2: BlockHeader!
@@ -610,7 +610,7 @@ type DoubleBakingEvidence implements OperationContents {
 }
 
 type ActivateAccount implements OperationContents {
-    # kind is always 'activate_account'
+    # kind is always 'activateAccount'
     kind: OperationKind!
     pkh: String!
     secret: String!
@@ -624,22 +624,22 @@ type Reveal implements OperationContents {
     source: Address!
     fee: BigNumber!
     counter: String!
-    gas_limit: BigNumber!
-    storage_limit: BigNumber!
-    public_key: String!
+    gasLimit: BigNumber!
+    storageLimit: BigNumber!
+    publicKey: String!
     metadata: RevealMetadata!
     operation: OperationEntryInfo!
 }
 
 type RevealMetadata {
-    balance_updates: [BalanceUpdate!]!
-    internal_operation_results: [InternalOperationResult!]
-    operation_result: RevealOperationResult!
+    balanceUpdates: [BalanceUpdate!]!
+    internalOperationResults: [InternalOperationResult!]
+    operationResult: RevealOperationResult!
 }
 
 type RevealOperationResult implements OperationResult {
     status: OperationResultStatus!
-    consumed_gas: BigNumber
+    consumedGas: BigNumber
     errors: [OperationError!]
 }
 
@@ -649,8 +649,8 @@ type Transaction implements OperationContents {
     source: Address!
     fee: BigNumber!
     counter: BigNumber!
-    gas_limit: BigNumber!
-    storage_limit: BigNumber!
+    gasLimit: BigNumber!
+    storageLimit: BigNumber!
     amount: BigNumber!
     destination: String!
     parameters: MichelsonExpression
@@ -659,26 +659,26 @@ type Transaction implements OperationContents {
 }
 
 type TransactionMetadata {
-    balance_updates: [BalanceUpdate!]!
-    operation_result: TransactionOperationResult!
-    internal_operation_results: [InternalOperationResult!]
+    balanceUpdates: [BalanceUpdate!]!
+    operationResult: TransactionOperationResult!
+    internalOperationResults: [InternalOperationResult!]
 }
 
 type TransactionOperationResult implements OperationResult {
     status: OperationResultStatus!
-    consumed_gas: BigNumber
+    consumedGas: BigNumber
     errors: [OperationError!]
     storage: MichelsonExpression
-    big_map_diff: [BigMapDiffItem!]
-    balance_updates: [BalanceUpdate!]
-    originated_contracts: [String!]
-    storage_size: String
-    paid_storage_size_diff: String
-    allocated_destination_contract: Boolean
+    bigMapDiff: [BigMapDiffItem!]
+    balanceUpdates: [BalanceUpdate!]
+    originatedContracts: [String!]
+    storageSize: String
+    paidStorageSizeDiff: String
+    allocatedDestinationContract: Boolean
 }
 
 type BigMapDiffItem {
-    key_hash: String!
+    keyHash: String!
     key: MichelsonExpression!
     value: MichelsonExpression
 }
@@ -689,22 +689,22 @@ type Delegation implements OperationContents {
     source: Address!
     fee: BigNumber!
     counter: BigNumber!
-    gas_limit: BigNumber!
-    storage_limit: BigNumber!
+    gasLimit: BigNumber!
+    storageLimit: BigNumber!
     delegate: Address
     metadata: DelegationMetadata!
     operation: OperationEntryInfo!
 }
 
 type DelegationMetadata {
-    balance_updates: [BalanceUpdate!]!
-    operation_result: DelegationOperationResult!
-    internal_operation_results: [InternalOperationResult!]
+    balanceUpdates: [BalanceUpdate!]!
+    operationResult: DelegationOperationResult!
+    internalOperationResults: [InternalOperationResult!]
 }
 
 type DelegationOperationResult implements OperationResult {
     status: OperationResultStatus!
-    consumed_gas: BigNumber
+    consumedGas: BigNumber
     errors: [OperationError!]
 }
 
@@ -714,8 +714,8 @@ type Origination implements OperationContents {
     source: Address!
     fee: BigNumber!
     counter: BigNumber!
-    gas_limit: BigNumber!
-    storage_limit: BigNumber!
+    gasLimit: BigNumber!
+    storageLimit: BigNumber!
     balance: BigNumber!
     delegate: Address
     script: ScriptedContracts
@@ -724,19 +724,19 @@ type Origination implements OperationContents {
 }
 
 type OriginationMetadata {
-    balance_updates: [BalanceUpdate!]!
-    operation_result: OriginationOperationResult!
-    internal_operation_results: [InternalOperationResult!]
+    balanceUpdates: [BalanceUpdate!]!
+    operationResult: OriginationOperationResult!
+    internalOperationResults: [InternalOperationResult!]
 }
 
 type OriginationOperationResult implements OperationResult {
     status: OperationResultStatus!
-    consumed_gas: BigNumber
+    consumedGas: BigNumber
     errors: [OperationError!]
-    balance_updates: [BalanceUpdate!]
-    originated_contracts: [String!]
-    storage_size: BigNumber
-    paid_storage_size_diff: BigNumber
+    balanceUpdates: [BalanceUpdate!]
+    originatedContracts: [String!]
+    storageSize: BigNumber
+    paidStorageSizeDiff: BigNumber
 }
 
 type Proposals implements OperationContents {
@@ -782,7 +782,7 @@ type InternalOperationResult {
     amount: BigNumber
     destination: String
     parameters: TransactionOperationParameter
-    public_key: String
+    publicKey: String
     balance: BigNumber
     delegate: Address
     script: ScriptedContracts
@@ -803,7 +803,7 @@ type TransactionOperationParameter {
 
 interface OperationResult {
     status: OperationResultStatus!
-    consumed_gas: BigNumber
+    consumedGas: BigNumber
     errors: [OperationError!]
 }
 

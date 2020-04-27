@@ -4,7 +4,7 @@ import { container } from 'tsyringe';
 
 import { TezosService } from '../../../services/tezos-service';
 import { Block } from '../../../types/types';
-import { convertResponse } from './block-utils';
+import { convertResponse } from '../../utils';
 
 const tezosRpcService = container.resolve(TezosService);
 
@@ -57,11 +57,11 @@ export const blocksQueryResolver = {
                 throw new UserInputError(`Number of blocks has to be lower than ${process.env.MAX_BLOCKS!}.`);
             }
 
-            let blocks: Block[] = [convertResponse(firstBlock || (await fetchBlock(fromLevel.toString())))];
+            let blocks: Block[] = [convertResponse<Block>(firstBlock || (await fetchBlock(fromLevel.toString())))];
             for (let i = 1; i < count; i++) {
                 if (i == count - 1 && lastBlock != null) {
                     // if we are at the last block and we have fetched it already...
-                    blocks.push(convertResponse(lastBlock));
+                    blocks.push(convertResponse<Block>(lastBlock));
                 } else {
                     // fetch the block
                     let block: BlockResponse;
@@ -74,7 +74,7 @@ export const blocksQueryResolver = {
                         }
                         throw e;
                     }
-                    blocks.push(convertResponse(block));
+                    blocks.push(convertResponse<Block>(block));
                 }
             }
             return blocks;
