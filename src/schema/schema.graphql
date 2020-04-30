@@ -23,6 +23,52 @@ Arbitrary precision number represented as string in JSON.
 """
 scalar BigNumber
 
+"""
+Micro tez. Positive bignumber. 1 tez = 1,000,000 micro tez.
+"""
+scalar Mutez
+
+"""
+Operation identifier (Base58Check-encoded) prefixed with o.
+"""
+scalar OperationHash
+
+"""
+Block identifier (Base58Check-encoded) prefixed with B.
+"""
+scalar BlockHash
+
+"""
+Protocol identifier (Base58Check-encoded) prefixed with P.
+"""
+scalar ProtocolHash
+
+"""
+Context identifier (Base58Check-encoded) prefixed with Co.
+"""
+scalar ContextHash
+
+"""
+Operations identifier (Base58Check-encoded) prefixed with LLo (List of a list of operations).
+"""
+scalar OperationsHash
+
+"""
+Chain identifier (Base58Check-encoded) prefixed with Net.
+"""
+scalar ChainId
+
+"""
+Block identifier. Hash (Base58Check-encoded), level (specified as a number), relative pointer (head~n) and head are allowed.
+
+Example of valid block identifiers:
+"head"
+946213 (level - specified as a number)
+"head~4" (relative to head)
+"BMX2db8rN3MczS9urDdS8Hh6Q7UyGve3631t2YwzunU3VDddoJf" (hash)
+"""
+scalar BlockIdentifier
+
 schema {
     query: Query
 }
@@ -32,7 +78,7 @@ type Query {
     Block fetches a Tezos block by number, hash (Base58Check-encoded) or relative pointer (head~n).
     If neither is supplied, the most recent known block (head) is returned.
     """
-    block(block: String): Block
+    block(block: BlockIdentifier): Block
 
     """
     Blocks returns all blocks in a given interval, but maximum of <count> elements.
@@ -45,7 +91,7 @@ type Query {
     blocks(to: "<somehash>", count: 5) {...}  # return 5 blocks before and including <somehash>
     blocks(from: "<somehash>", count: 5) {...}  # return 5 blocks since and including <somehash>
     """
-    blocks(from: String, to: String, count: Int): [Block!]!
+    blocks(from: BlockIdentifier, to: BlockIdentifier, count: Int): [Block!]!
 }
 
 """
@@ -55,17 +101,17 @@ type Block {
     """
     Tezos protocol ID (Base58Check-encoded)
     """
-    protocol: String!
+    protocol: ProtocolHash!
 
     """
     The network identifier (Base58Check-encoded)
     """
-    chainId: String!
+    chainId: ChainId!
 
     """
     The block's unique identifier (Base58Check-encoded)
     """
-    hash: String!
+    hash: BlockHash!
 
     """
     Associated header object.
@@ -168,9 +214,9 @@ type BlockHeader {
     predecessor: String!
     timestamp: DateTime!
     validationPass: Int!
-    operationsHash: String
+    operationsHash: OperationsHash
     fitness: [String!]!
-    context: String!
+    context: ContextHash!
     priority: Int!
     proofOfWorkNonce: String!
     seedNonceHash: String
@@ -271,12 +317,12 @@ type Delegate {
     """
     The full balance of a given delegate, including the frozen balances.
     """
-    balance: BigNumber!
+    balance: Mutez!
 
     """
     The total frozen balances of a given delegate, this includes the frozen deposits, rewards and fees.
     """
-    frozenBalance: BigNumber!
+    frozenBalance: Mutez!
 
     """
     Returns the frozen balances of a given delegate, indexed by the cycle by which it will be unfrozen.
@@ -287,7 +333,7 @@ type Delegate {
     The total amount of tokens delegated to a given delegate. This includes the balances of all the contracts that delegate to it,
     but also the balance of the delegate itself and its frozen fees and deposits. The rewards do not count in the delegated balance until they are unfrozen.
     """
-    stakingBalance: BigNumber!
+    stakingBalance: Mutez!
 
     """
     The list of contracts that delegate to a given delegate.
@@ -297,7 +343,7 @@ type Delegate {
     """
     The balances of all the contracts that delegate to a given delegate. This excludes the delegate's own balance and its frozen balances.
     """
-    delegatedBalance: BigNumber!
+    delegatedBalance: Mutez!
 
     """
     Tells whether the delegate is currently tagged as deactivated or not.
@@ -348,46 +394,46 @@ Frozen balance of a given delegate, indexed by the cycle by which it will be unf
 """
 type FrozenBalanceByCycle {
     cycle: Int!
-    deposit: BigNumber!
-    fees: BigNumber!
-    rewards: BigNumber!
+    deposit: Mutez!
+    fees: Mutez!
+    rewards: Mutez!
 }
 
 """
 All constants
 """
 type Constants {
-    proofOfWorkNonceSize: Int
-    nonceLength: Int
-    maxRevelationsPerBlock: Int
-    maxOperationDataLength: Int
-    maxProposalsPerDelegate: Int
-    preservedCycles: Int
-    blocksPerCycle: Int
+    bakingRewardPerEndorsement: [BigNumber]
+    blockSecurityDeposit: Mutez
     blocksPerCommitment: Int
+    blocksPerCycle: Int
     blocksPerRollSnapshot: Int
     blocksPerVotingPeriod: Int
-    timeBetweenBlocks: [BigNumber]
-    endorsersPerBlock: Int
-    hardGasLimitPerOperation: BigNumber
-    hardGasLimitPerBlock: BigNumber
-    proofOfWorkThreshold: BigNumber
-    tokensPerRoll: BigNumber
-    michelsonMaximumTypeSize: Int
-    seedNonceRevelationTip: BigNumber
-    originationSize: Int
-    blockSecurityDeposit: BigNumber
-    endorsementSecurityDeposit: BigNumber
-    bakingRewardPerEndorsement: [BigNumber]
-    endorsementReward: [BigNumber]
-    costPerByte: BigNumber
-    hardStorageLimitPerOperation: BigNumber
-    testChainDuration: BigNumber
-    quorumMin: Int
-    quorumMax: Int
-    minProposalQuorum: Int
-    initialEndorsers: Int
+    costPerByte: Mutez
     delayPerMissingEndorsement: BigNumber
+    endorsementReward: [Mutez]
+    endorsementSecurityDeposit: Mutez
+    endorsersPerBlock: Int
+    hardGasLimitPerBlock: BigNumber
+    hardGasLimitPerOperation: BigNumber
+    hardStorageLimitPerOperation: BigNumber
+    initialEndorsers: Int
+    maxOperationDataLength: Int
+    maxProposalsPerDelegate: Int
+    maxRevelationsPerBlock: Int
+    michelsonMaximumTypeSize: Int
+    minProposalQuorum: Int
+    nonceLength: Int
+    originationSize: Int
+    preservedCycles: Int
+    proofOfWorkNonceSize: Int
+    proofOfWorkThreshold: BigNumber
+    quorumMax: Int
+    quorumMin: Int
+    seedNonceRevelationTip: Mutez
+    testChainDuration: BigNumber
+    timeBetweenBlocks: [BigNumber]
+    tokensPerRoll: Mutez
     """
     Pre Carthaganet
     """
@@ -406,7 +452,7 @@ type Contract {
     """
     The balance of the contract.
     """
-    balance: BigNumber!
+    balance: Mutez!
 
     """
     Script belonging to the contract.
@@ -622,7 +668,7 @@ type Reveal implements OperationContents {
     # kind is always 'reveal'
     kind: OperationKind!
     source: Address!
-    fee: BigNumber!
+    fee: Mutez!
     counter: String!
     gasLimit: BigNumber!
     storageLimit: BigNumber!
@@ -647,11 +693,11 @@ type Transaction implements OperationContents {
     # kind is always 'transaction'
     kind: OperationKind!
     source: Address!
-    fee: BigNumber!
+    fee: Mutez!
     counter: BigNumber!
     gasLimit: BigNumber!
     storageLimit: BigNumber!
-    amount: BigNumber!
+    amount: Mutez!
     destination: String!
     parameters: MichelsonExpression
     metadata: TransactionMetadata!
@@ -687,7 +733,7 @@ type Delegation implements OperationContents {
     # kind is always 'delegation'
     kind: OperationKind!
     source: Address!
-    fee: BigNumber!
+    fee: Mutez!
     counter: BigNumber!
     gasLimit: BigNumber!
     storageLimit: BigNumber!
@@ -712,11 +758,11 @@ type Origination implements OperationContents {
     # kind is always 'origination'
     kind: OperationKind!
     source: Address!
-    fee: BigNumber!
+    fee: Mutez!
     counter: BigNumber!
     gasLimit: BigNumber!
     storageLimit: BigNumber!
-    balance: BigNumber!
+    balance: Mutez!
     delegate: Address
     script: ScriptedContracts
     metadata: OriginationMetadata!
@@ -779,11 +825,11 @@ type InternalOperationResult {
     kind: InternalOperationKind!
     source: Address!
     nonce: Int!
-    amount: BigNumber
+    amount: Mutez
     destination: String
     parameters: TransactionOperationParameter
     publicKey: String
-    balance: BigNumber
+    balance: Mutez
     delegate: Address
     script: ScriptedContracts
     result: OperationResult!
