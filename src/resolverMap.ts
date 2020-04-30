@@ -14,6 +14,8 @@ import { operationContentsResolver } from './resolvers/operation-contents-resolv
 import { operationResolver } from './resolvers/operation-resolver';
 import { blockQueryResolver } from './resolvers/queries/blocks/block-query-resolver';
 import { blocksQueryResolver } from './resolvers/queries/blocks/blocks-query-resolver';
+import { base58Resolvers } from './resolvers/scalars/base58-resolvers';
+import { mutezResolver } from './resolvers/scalars/mutez-resolver';
 
 const dateTimeResolver: IResolvers = {
     DateTime: GraphQLDateTime,
@@ -24,7 +26,15 @@ const jsonResolver: IResolvers = {
 };
 
 const queries = merge(blockQueryResolver, blocksQueryResolver);
-const typeResolvers = merge(dateTimeResolver, jsonResolver, operationContentsResolver, internalOperationResultResolver, enumResolver);
+const typeResolvers = merge(
+    dateTimeResolver,
+    jsonResolver,
+    operationContentsResolver,
+    internalOperationResultResolver,
+    enumResolver,
+    mutezResolver,
+    base58Resolvers
+);
 const schemaResolvers = merge(blockResolver, contractResolver, delegateResolver, operationResolver);
 const resolvers = merge(queries, typeResolvers, schemaResolvers);
 

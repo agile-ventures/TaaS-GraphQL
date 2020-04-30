@@ -7,8 +7,8 @@ const tezosRpcService = container.resolve(TezosService);
 
 export const blockQueryResolver = {
     Query: {
-        async block(obj: any, args: { block: string | null }): Promise<Block | null> {
-            return convertResponseOrNull(await TezosService.handleNotFound(() => tezosRpcService.client.getBlock({ block: args.block || 'head' })));
+        async block(obj: any, args: { block: string | number | null }): Promise<Block | null> {
+            return convertResponseOrNull(await TezosService.handleNotFound(() => tezosRpcService.client.getBlock({ block: args.block?.toString() || 'head' })));
         },
     },
 };

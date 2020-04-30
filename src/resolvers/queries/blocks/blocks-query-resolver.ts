@@ -8,13 +8,13 @@ import { convertResponse } from '../../utils';
 
 const tezosRpcService = container.resolve(TezosService);
 
-function fetchBlock(block: string): Promise<BlockResponse> {
-    return tezosRpcService.client.getBlock({ block });
+function fetchBlock(block: string | number): Promise<BlockResponse> {
+    return tezosRpcService.client.getBlock({ block: block.toString() });
 }
 
 export const blocksQueryResolver = {
     Query: {
-        async blocks(obj: any, args: { from: string | null; to: string | null; count: number | null }, context: any): Promise<Block[]> {
+        async blocks(obj: any, args: { from: string | number | null; to: string | number | null; count: number | null }, context: any): Promise<Block[]> {
             if (args.from == null && args.to == null && args.count == null) {
                 throw new UserInputError(`Neither "from", "to" or "count" argument specified`);
             }
@@ -57,7 +57,7 @@ export const blocksQueryResolver = {
                 throw new UserInputError(`Number of blocks has to be lower than ${process.env.MAX_BLOCKS!}.`);
             }
 
-            let blocks: Block[] = [convertResponse<Block>(firstBlock || (await fetchBlock(fromLevel.toString())))];
+            let blocks: Block[] = [convertResponse<Block>(firstBlock || (await fetchBlock(fromLevel)))];
             for (let i = 1; i < count; i++) {
                 if (i == count - 1 && lastBlock != null) {
                     // if we are at the last block and we have fetched it already...
@@ -66,7 +66,7 @@ export const blocksQueryResolver = {
                     // fetch the block
                     let block: BlockResponse;
                     try {
-                        block = await fetchBlock((fromLevel + i).toString());
+                        block = await fetchBlock(fromLevel + i);
                     } catch (e) {
                         if (e.status == 404) {
                             // we are at the end of the list
