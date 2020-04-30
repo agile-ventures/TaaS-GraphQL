@@ -61,10 +61,10 @@ scalar ChainId
 """
 Block identifier. Hash (Base58Check-encoded), level (specified as a number), relative pointer (head~n) and head are allowed.
 
-Example of valid block identifiers:
+Examples of valid block identifiers:
 "head"
 946213 (level - specified as a number)
-"head~4" (relative to head)
+"head~4" (5th block relative to head)
 "BMX2db8rN3MczS9urDdS8Hh6Q7UyGve3631t2YwzunU3VDddoJf" (hash)
 """
 scalar BlockIdentifier
