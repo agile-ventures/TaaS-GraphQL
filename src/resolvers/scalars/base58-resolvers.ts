@@ -1,5 +1,6 @@
-import { ApolloError, ApolloServer } from 'apollo-server-express';
+import { ApolloError } from 'apollo-server-express';
 import { GraphQLScalarType, Kind, ValueNode } from 'graphql';
+
 var bs58check = require('bs58check');
 
 export const base58Resolvers = {
