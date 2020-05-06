@@ -71,7 +71,7 @@ You can take a look at the schema in the GraphQL playground or on the link below
 
 If you need a caching layer between your GraphQL Docker container and your Tezos Node, you can use TezProxy.
 
-> [https://github.com/tezexInfo/TezProxy](https://github.com/tezexInfo/TezProx)
+> [https://github.com/tezexInfo/TezProxy](https://github.com/tezexInfo/TezProxy)
 
 ### Security & Deployment
 

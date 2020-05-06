@@ -53,6 +53,13 @@ export const base58Resolvers = {
         serialize: validateProtocolHash,
         parseLiteral: validateProtocolHash,
     }),
+    Signature: new GraphQLScalarType({
+        name: 'Signature',
+        description: 'Generic signature (Base58Check-encoded) prefixed with sig.',
+        parseValue: validateSignature,
+        serialize: validateSignature,
+        parseLiteral: validateSignature,
+    }),
     BlockIdentifier: new GraphQLScalarType({
         name: 'BlockIdentifier',
         description: 'BlockIdentifier',
@@ -118,6 +125,12 @@ function validateOperationsHash(value: any) {
 
 function validateProtocolHash(value: any) {
     if (!hasPrefixAndLength(value, 'P', 51)) throw new ApolloError('Wrong ProtocolHash');
+    validate58Hash(value);
+    return value;
+}
+
+function validateSignature(value: any) {
+    if (!hasPrefixAndLength(value, 'sig', 96)) throw new ApolloError('Wrong Signature');
     validate58Hash(value);
     return value;
 }

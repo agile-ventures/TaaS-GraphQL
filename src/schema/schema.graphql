@@ -59,6 +59,11 @@ Chain identifier (Base58Check-encoded) prefixed with Net.
 scalar ChainId
 
 """
+Generic signature (Base58Check-encoded) prefixed with sig.
+"""
+scalar Signature
+
+"""
 Block identifier. Hash (Base58Check-encoded), level (specified as a number), relative pointer (head~n) and head are allowed.
 
 Examples of valid block identifiers:
@@ -220,7 +225,7 @@ type BlockHeader {
     priority: Int!
     proofOfWorkNonce: String!
     seedNonceHash: String
-    signature: String!
+    signature: Signature!
 }
 
 """
@@ -573,10 +578,10 @@ type OperationEntry {
 
 type OperationEntryInfo {
     protocol: String!
-    chainId: String!
+    chainId: ChainId!
     hash: String!
     branch: String!
-    signature: String
+    signature: Signature
 }
 
 interface OperationContents {
@@ -633,7 +638,7 @@ type DoubleEndorsementEvidence implements OperationContents {
 type InlinedEndorsement {
     branch: String!
     operations: InlinedEndorsementContents!
-    signature: String
+    signature: Signature
 }
 
 type InlinedEndorsementContents {
