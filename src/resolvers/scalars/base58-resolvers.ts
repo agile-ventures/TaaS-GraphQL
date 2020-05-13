@@ -53,6 +53,13 @@ export const base58Resolvers = {
         serialize: validateProtocolHash,
         parseLiteral: validateProtocolHash,
     }),
+    PublicKey: new GraphQLScalarType({
+        name: 'PublicKey',
+        description: 'Public key (Base58Check-encoded) prefixed with edpk, sppk or p2pk.',
+        parseValue: validatePublicKey,
+        serialize: validatePublicKey,
+        parseLiteral: validatePublicKey,
+    }),
     Signature: new GraphQLScalarType({
         name: 'Signature',
         description: 'Generic signature (Base58Check-encoded) prefixed with sig.',
@@ -126,6 +133,14 @@ function validateOperationsHash(value: any) {
 function validateProtocolHash(value: any) {
     if (!hasPrefixAndLength(value, 'P', 51)) throw new ApolloError('Wrong ProtocolHash');
     validate58Hash(value);
+    return value;
+}
+
+function validatePublicKey(value: any) {
+    //  Order of the prefixes is based on their relative quantity in the Tezos network (ed25519 is the most used)
+    const isValid = hasPrefixAndLength(value, 'edpk', 54) || hasPrefixAndLength(value, 'p2pk', 55) || hasPrefixAndLength(value, 'sppk', 55);
+    validate58Hash(value);
+    if (!isValid) throw new ApolloError('Wrong Public Key');
     return value;
 }
 
