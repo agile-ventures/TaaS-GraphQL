@@ -64,6 +64,16 @@ Generic signature (Base58Check-encoded) prefixed with sig.
 scalar Signature
 
 """
+Public key (Base58Check-encoded) prefixed with edpk, sppk or p2pk.
+"""
+scalar PublicKey
+
+"""
+Nonce hash (Base58Check-encoded).
+"""
+scalar NonceHash
+
+"""
 Block identifier. Hash (Base58Check-encoded), level (specified as a number), relative pointer (head~n) and head are allowed.
 
 Examples of valid block identifiers:
@@ -146,7 +156,7 @@ type Block {
     """
     Returns the operation entry with the given hash, or null
     """
-    operation(hash: String!): OperationEntry
+    operation(hash: OperationHash!): OperationEntry
 
     """
     All operations in this block as returned from the Tezos node
@@ -156,58 +166,58 @@ type Block {
     """
     Returns activations from block. Results can be filtered by operation hash, or address (pkh)
     """
-    activations(hash: String, address: Address): [ActivateAccount!]!
+    activations(hash: OperationHash, address: Address): [ActivateAccount!]!
 
     """
     Returns ballots from block. Results can be filtered by operation hash, source, proposal or vote (ballot).
     """
-    ballots(hash: String, source: Address, proposal: String, ballot: BallotVote): [Ballot!]!
+    ballots(hash: OperationHash, source: Address, proposal: ProtocolHash, ballot: BallotVote): [Ballot!]!
 
     """
     Returns delegations from block. Results can be filtered by operation hash, source, delegate or operation result status.
     """
-    delegations(hash: String, source: Address, delegate: Address, status: OperationResultStatus): [Delegation!]!
+    delegations(hash: OperationHash, source: Address, delegate: Address, status: OperationResultStatus): [Delegation!]!
 
     """
     Returns double baking evidence from block. Results can be filtered by operation hash or delegate.
     """
-    doubleBakingEvidence(hash: String, delegate: Address): [DoubleBakingEvidence!]!
+    doubleBakingEvidence(hash: OperationHash, delegate: Address): [DoubleBakingEvidence!]!
 
     """
     Returns double endorsement evidence from block. Results can be filtered by operation hash or delegate.
     """
-    doubleEndorsementEvidence(hash: String, delegate: Address): [DoubleEndorsementEvidence!]!
+    doubleEndorsementEvidence(hash: OperationHash, delegate: Address): [DoubleEndorsementEvidence!]!
 
     """
     Returns endorsements from block. Results can be filtered by operation hash, or delegate.
     """
-    endorsements(hash: String, delegate: Address): [Endorsement!]!
+    endorsements(hash: OperationHash, delegate: Address): [Endorsement!]!
 
     """
     Returns originations from block. Results can be filtered by
     operation hash, source, delegate, originated contract or operation result status.
     """
-    originations(hash: String, source: Address, delegate: Address, originatedContract: Address, status: OperationResultStatus): [Origination!]!
+    originations(hash: OperationHash, source: Address, delegate: Address, originatedContract: Address, status: OperationResultStatus): [Origination!]!
 
     """
     Returns proposals from block. Results can be filtered by operation hash, source or proposal hash.
     """
-    proposals(hash: String, source: Address, proposal: String): [Proposals!]!
+    proposals(hash: OperationHash, source: Address, proposal: ProtocolHash): [Proposals!]!
 
     """
     Returns reveals from block. Results can be filtered by operation hash, source or operation result status.
     """
-    reveals(hash: String, source: Address, status: OperationResultStatus): [Reveal!]!
+    reveals(hash: OperationHash, source: Address, status: OperationResultStatus): [Reveal!]!
 
     """
     Returns seed nonce revelations from block. Results can be filtered by operation hash, source or operation result status.
     """
-    seedNonceRevelations(hash: String, delegate: Address): [SeedNonceRevelation!]!
+    seedNonceRevelations(hash: OperationHash, delegate: Address): [SeedNonceRevelation!]!
 
     """
     Returns transactions from block. Results can be filtered by operation hash, source, destination or operation result status.
     """
-    transactions(hash: String, source: Address, destination: Address, status: OperationResultStatus): [Transaction!]!
+    transactions(hash: OperationHash, source: Address, destination: Address, status: OperationResultStatus): [Transaction!]!
 }
 
 """
@@ -216,7 +226,7 @@ A block header. See https://tezos.gitlab.io/api/rpc.html#get-block-id-header
 type BlockHeader {
     level: Int!
     proto: Int!
-    predecessor: String!
+    predecessor: BlockHash!
     timestamp: DateTime!
     validationPass: Int!
     operationsHash: OperationsHash
@@ -224,7 +234,7 @@ type BlockHeader {
     context: ContextHash!
     priority: Int!
     proofOfWorkNonce: String!
-    seedNonceHash: String
+    seedNonceHash: NonceHash
     signature: Signature!
 }
 
@@ -232,8 +242,8 @@ type BlockHeader {
 Block metadata. See https://tezos.gitlab.io/api/rpc.html#get-block-id-metadata
 """
 type BlockMetadata {
-    protocol: String!
-    nextProtocol: String!
+    protocol: ProtocolHash!
+    nextProtocol: ProtocolHash!
     testChainStatus: TestChainStatus!
     maxOperationsTtl: Int!
     maxOperationDataLength: Int!
@@ -241,8 +251,8 @@ type BlockMetadata {
     maxOperationListLength: [MaxOperationListLength!]
     baker: Address!
     level: Level!
-    votingPeriodKind: String!
-    nonceHash: String
+    votingPeriodKind: VotingPeriodKind!
+    nonceHash: NonceHash
     consumedGas: BigNumber
     deactivated: [Address!]
     balanceUpdates: [BalanceUpdate!]
@@ -296,7 +306,7 @@ type TestChainStatus {
     The status value: notRunning (there is no test chain at the moment), forking (the test chain is being setup),
     running (the test chain is running).
     """
-    status: String!
+    status: TestChainStatusType!
 }
 
 type MaxOperationListLength {
@@ -343,7 +353,7 @@ type Delegate {
     """
     The list of contracts that delegate to a given delegate.
     """
-    delegatedContracts: [String!]!
+    delegatedContracts: [Address!]!
 
     """
     The balances of all the contracts that delegate to a given delegate. This excludes the delegate's own balance and its frozen balances.
@@ -374,7 +384,7 @@ type Delegate {
 
 type BakingRight {
     level: Int!
-    delegate: String!
+    delegate: Address!
     priority: Int!
 
     """
@@ -385,7 +395,7 @@ type BakingRight {
 
 type EndorsingRight {
     level: Int!
-    delegate: String!
+    delegate: Address!
     slots: [Int]!
 
     """
@@ -452,7 +462,7 @@ type Contract {
     """
     The unique address (public key hash).
     """
-    address: String!
+    address: Address!
 
     """
     The balance of the contract.
@@ -477,7 +487,7 @@ type Contract {
     """
     The delegate of the contract, if any
     """
-    delegate: String
+    delegate: Address
 
     """
     The manager of the contract.
@@ -532,7 +542,7 @@ type ManagerKey {
     """
     The public key
     """
-    key: String!
+    key: PublicKey!
 
     """
     Validity flag
@@ -577,10 +587,10 @@ type OperationEntry {
 }
 
 type OperationEntryInfo {
-    protocol: String!
+    protocol: ProtocolHash!
     chainId: ChainId!
-    hash: String!
-    branch: String!
+    hash: OperationHash!
+    branch: BlockHash!
     signature: Signature
 }
 
@@ -636,7 +646,7 @@ type DoubleEndorsementEvidence implements OperationContents {
 }
 
 type InlinedEndorsement {
-    branch: String!
+    branch: BlockHash!
     operations: InlinedEndorsementContents!
     signature: Signature
 }
@@ -663,7 +673,7 @@ type DoubleBakingEvidence implements OperationContents {
 type ActivateAccount implements OperationContents {
     # kind is always 'activateAccount'
     kind: OperationKind!
-    pkh: String!
+    pkh: Address!
     secret: String!
     metadata: OperationContentMetadata!
     operation: OperationEntryInfo!
@@ -674,10 +684,10 @@ type Reveal implements OperationContents {
     kind: OperationKind!
     source: Address!
     fee: Mutez!
-    counter: String!
+    counter: BigNumber!
     gasLimit: BigNumber!
     storageLimit: BigNumber!
-    publicKey: String!
+    publicKey: PublicKey!
     metadata: RevealMetadata!
     operation: OperationEntryInfo!
 }
@@ -703,7 +713,7 @@ type Transaction implements OperationContents {
     gasLimit: BigNumber!
     storageLimit: BigNumber!
     amount: Mutez!
-    destination: String!
+    destination: Address!
     parameters: MichelsonExpression
     metadata: TransactionMetadata!
     operation: OperationEntryInfo!
@@ -722,9 +732,9 @@ type TransactionOperationResult implements OperationResult {
     storage: MichelsonExpression
     bigMapDiff: [BigMapDiffItem!]
     balanceUpdates: [BalanceUpdate!]
-    originatedContracts: [String!]
-    storageSize: String
-    paidStorageSizeDiff: String
+    originatedContracts: [Address!]
+    storageSize: BigNumber
+    paidStorageSizeDiff: BigNumber
     allocatedDestinationContract: Boolean
 }
 
@@ -785,7 +795,7 @@ type OriginationOperationResult implements OperationResult {
     consumedGas: BigNumber
     errors: [OperationError!]
     balanceUpdates: [BalanceUpdate!]
-    originatedContracts: [String!]
+    originatedContracts: [Address!]
     storageSize: BigNumber
     paidStorageSizeDiff: BigNumber
 }
@@ -795,7 +805,7 @@ type Proposals implements OperationContents {
     kind: OperationKind!
     source: Address!
     period: Int!
-    proposals: [String!]!
+    proposals: [ProtocolHash!]!
     metadata: JSON
     operation: OperationEntryInfo!
 }
@@ -805,7 +815,7 @@ type Ballot implements OperationContents {
     kind: OperationKind!
     source: Address!
     period: Int!
-    proposal: String!
+    proposal: ProtocolHash!
     ballot: BallotVote!
     metadata: JSON
     operation: OperationEntryInfo!
@@ -820,7 +830,7 @@ enum BallotVote {
 type BalanceUpdate {
     kind: BalanceUpdateKind!
     category: BalanceUpdateCategory
-    contract: String
+    contract: Address
     delegate: Address
     cycle: Int
     change: BigNumber!
@@ -831,9 +841,9 @@ type InternalOperationResult {
     source: Address!
     nonce: Int!
     amount: Mutez
-    destination: String
+    destination: Address
     parameters: TransactionOperationParameter
-    publicKey: String
+    publicKey: PublicKey
     balance: Mutez
     delegate: Address
     script: ScriptedContracts
@@ -868,4 +878,17 @@ enum OperationResultStatus {
 type OperationError {
     kind: String!
     id: String!
+}
+
+enum TestChainStatusType {
+    NOT_RUNNING
+    FORKING
+    RUNNING
+}
+
+enum VotingPeriodKind {
+    PROPOSAL
+    TESTING_VOTE
+    TESTING
+    PROMOTION_VOTE
 }

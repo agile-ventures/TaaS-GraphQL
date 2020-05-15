@@ -32,6 +32,13 @@ export const base58Resolvers = {
         serialize: validateChainId,
         parseLiteral: validateChainId,
     }),
+    NonceHash: new GraphQLScalarType({
+        name: 'NonceHash',
+        description: 'Nonce hash (Base58Check-encoded).',
+        parseValue: validatenonceHash,
+        serialize: validatenonceHash,
+        parseLiteral: validatenonceHash,
+    }),
     OperationHash: new GraphQLScalarType({
         name: 'OperationHash',
         description: 'Operation identifier (Base58Check-encoded) prefixed with o.',
@@ -52,6 +59,13 @@ export const base58Resolvers = {
         parseValue: validateProtocolHash,
         serialize: validateProtocolHash,
         parseLiteral: validateProtocolHash,
+    }),
+    PublicKey: new GraphQLScalarType({
+        name: 'PublicKey',
+        description: 'Public key (Base58Check-encoded) prefixed with edpk, sppk or p2pk.',
+        parseValue: validatePublicKey,
+        serialize: validatePublicKey,
+        parseLiteral: validatePublicKey,
     }),
     Signature: new GraphQLScalarType({
         name: 'Signature',
@@ -111,6 +125,11 @@ function validateBlockHash(value: any) {
     return value;
 }
 
+function validatenonceHash(value: any) {
+    validate58Hash(value);
+    return value;
+}
+
 function validateOperationHash(value: any) {
     if (!hasPrefixAndLength(value, 'o', 51)) throw new ApolloError('Wrong OperationHash');
     validate58Hash(value);
@@ -126,6 +145,14 @@ function validateOperationsHash(value: any) {
 function validateProtocolHash(value: any) {
     if (!hasPrefixAndLength(value, 'P', 51)) throw new ApolloError('Wrong ProtocolHash');
     validate58Hash(value);
+    return value;
+}
+
+function validatePublicKey(value: any) {
+    //  Order of the prefixes is based on their relative quantity in the Tezos network (ed25519 is the most used)
+    const isValid = hasPrefixAndLength(value, 'edpk', 54) || hasPrefixAndLength(value, 'p2pk', 55) || hasPrefixAndLength(value, 'sppk', 55);
+    validate58Hash(value);
+    if (!isValid) throw new ApolloError('Wrong Public Key');
     return value;
 }
 

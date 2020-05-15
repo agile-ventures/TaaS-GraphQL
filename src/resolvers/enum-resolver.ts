@@ -54,4 +54,17 @@ export const enumResolver = {
         ADDRESS: 'address',
         KEY_HASH: 'key_hash',
     },
+
+    TestChainStatusType: {
+        NOT_RUNNING: 'not_running',
+        FORKING: 'forking',
+        RUNNING: 'running',
+    },
+
+    VotingPeriodKind: {
+        PROPOSAL: 'proposal',
+        TESTING_VOTE: 'testing_vote',
+        TESTING: 'testing',
+        PROMOTION_VOTE: 'promotion_vote',
+    },
 };
