@@ -40,7 +40,7 @@
         "express": "^4.17.1",
         "graphql": "^14.6.0",
         "graphql-depth-limit": "^1.1.0",
-        "graphql-import": "^1.0.0-beta.2",
+        "graphql-import": "^1.0.2",
         "graphql-import-node": "0.0.4",
         "graphql-iso-date": "^3.6.1",
         "graphql-type-json": "^0.3.1",
